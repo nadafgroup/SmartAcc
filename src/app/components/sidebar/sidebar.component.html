@@ -1,0 +1,28 @@
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <span>DSSERP</span>
+    </div>
+  </div>
+
+  <div class="menu-header">
+    <span>{{ menuTitle }}</span>
+  </div>
+
+  <div class="sidebar-menu">
+    <ul class="nav-list">
+      <li *ngFor="let item of menuItems" class="nav-item">
+        <a class="nav-link" 
+           [routerLink]="item.route" 
+           routerLinkActive="active">
+          <i [class]="'bi ' + item.icon"></i>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="sidebar-footer">
+    <p>© 2025 DSSERP</p>
+  </div>
+</div>

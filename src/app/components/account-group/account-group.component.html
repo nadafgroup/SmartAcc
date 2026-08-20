@@ -1,0 +1,220 @@
+<div class="page-container">
+  <!-- Messages -->
+  <div *ngIf="error" class="alert alert-modern alert-danger alert-dismissible fade show">
+    <i class="bi bi-exclamation-circle-fill"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error=''"></button>
+  </div>
+  
+  <div *ngIf="success" class="alert alert-modern alert-success alert-dismissible fade show">
+    <i class="bi bi-check-circle-fill"></i>
+    {{ success }}
+    <button type="button" class="btn-close" (click)="success=''"></button>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card-modern">
+    <div class="card-header">
+      <h4>
+        <i class="bi bi-folder2-open"></i>
+        Account Group Master
+        <span class="badge-count">{{ groups.length }} Records</span>
+      </h4>
+    </div>
+
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+      <button class="btn-action-toolbar btn-add" (click)="toggleForm()" [disabled]="showForm" title="Add New Record">
+        <i class="bi bi-plus-circle-fill"></i> Add
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-edit" (click)="onEdit()" [disabled]="!selectedRowId || showForm" title="Edit Selected Record">
+        <i class="bi bi-pencil-fill"></i> Edit
+      </button>
+      <button class="btn-action-toolbar btn-delete" (click)="deleteSelected()" [disabled]="!selectedRowId || showForm" title="Delete Selected Record">
+        <i class="bi bi-trash-fill"></i> Delete
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-print" (click)="onPrint()" [disabled]="showForm" title="Print Record">
+        <i class="bi bi-printer-fill"></i> Print
+      </button>
+      <button class="btn-action-toolbar btn-attach" (click)="onAttach()" [disabled]="showForm" title="Attach File">
+        <i class="bi bi-paperclip"></i> Attach
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-confirm" (click)="onConfirm()" [disabled]="!selectedRowId || !showForm" title="Confirm Record">
+        <i class="bi bi-check-circle-fill"></i> Confirm
+      </button>
+      <button class="btn-action-toolbar btn-undo" (click)="onUndo()" [disabled]="!showForm" title="Undo Last Action">
+        <i class="bi bi-arrow-counterclockwise"></i> Undo
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-close" (click)="onClose()" [disabled]="showForm" title="Close">
+        <i class="bi bi-x-circle-fill"></i> Close
+      </button>
+    </div>
+
+    <div class="card-body">
+      <!-- Form Section -->
+      <div *ngIf="showForm" class="form-section">
+        <h5>
+          <i class="bi" [class.bi-pencil-square]="isEditMode" [class.bi-plus-circle]="!isEditMode"></i>
+          {{ isEditMode ? 'Edit' : 'Add New' }} Account Group
+        </h5>
+        
+        <form [formGroup]="groupForm" (ngSubmit)="onSubmit()">
+          <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Group Code <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="GroupCode" 
+                     placeholder="e.g., ASSETS001">
+              <div *ngIf="groupForm.get('GroupCode')?.invalid && groupForm.get('GroupCode')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Group Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="GroupName" 
+                     placeholder="e.g., Fixed Assets">
+              <div *ngIf="groupForm.get('GroupName')?.invalid && groupForm.get('GroupName')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Parent Group</label>
+              <select class="form-select" formControlName="ParentGroupID">
+                <option [value]="null">None (Top Level)</option>
+                <option *ngFor="let parent of parentGroups" [value]="parent.GroupID">
+                  {{ parent.GroupName }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Group Type <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="GroupType">
+                <option value="">Select Type</option>
+                <option *ngFor="let type of groupTypes" [value]="type">{{ type }}</option>
+              </select>
+              <div *ngIf="groupForm.get('GroupType')?.invalid && groupForm.get('GroupType')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Nature of Account <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="NatureOfAccount">
+                <option value="">Select Nature</option>
+                <option *ngFor="let nature of natureOfAccount" [value]="nature">{{ nature }}</option>
+              </select>
+              <div *ngIf="groupForm.get('NatureOfAccount')?.invalid && groupForm.get('NatureOfAccount')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Opening Balance</label>
+              <input type="number" class="form-control" formControlName="OpeningBalance" 
+                     step="0.01" placeholder="0.00">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Status</label>
+              <div class="form-switch mt-2">
+                <input class="form-check-input" type="checkbox" formControlName="IsActive" id="isActive">
+                <label class="form-check-label" for="isActive">
+                  <span class="badge" [class.badge-active]="groupForm.get('IsActive')?.value"
+                                       [class.badge-inactive]="!groupForm.get('IsActive')?.value">
+                    {{ groupForm.get('IsActive')?.value ? 'Active' : 'Inactive' }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-sm-12">
+              <label class="form-label">Remarks</label>
+              <input type="text" class="form-control" formControlName="Remarks" 
+                     placeholder="Additional notes...">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Table Section -->
+      <div class="table-responsive">
+        <div *ngIf="loading && !showForm" class="text-center py-5">
+          <div class="spinner-modern"></div>
+          <p class="text-muted mt-3">Loading groups...</p>
+        </div>
+        
+        <table class="table-modern" *ngIf="!loading">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Group Code</th>
+              <th>Group Name</th>
+              <th>Parent Group</th>
+              <th>Type</th>
+              <th>Nature</th>
+              <th>Opening Balance</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let group of groups; let i = index"
+                [class.selected-row]="selectedRowId === group.GroupID"
+                (click)="selectRow(group.GroupID!)">
+              <td>{{ i + 1 }}</td>
+              <td><strong>{{ group.GroupCode }}</strong></td>
+              <td>{{ group.GroupName }}</td>
+              <td>
+                <span *ngIf="group.ParentGroupName; else noParent">
+                  {{ group.ParentGroupName }}
+                </span>
+                <ng-template #noParent>
+                  <span class="text-muted">-</span>
+                </ng-template>
+              </td>
+              <td><span class="badge badge-type">{{ group.GroupType }}</span></td>
+              <td>
+                <span class="badge" [class.badge-credit]="group.NatureOfAccount === 'Credit'"
+                                   [class.badge-debit]="group.NatureOfAccount === 'Debit'">
+                  {{ group.NatureOfAccount }}
+                </span>
+              </td>
+              <td class="text-end fw-bold">{{ group.OpeningBalance | number:'1.2-2' }}</td>
+              <td>
+                <span class="badge" [class.badge-active]="group.IsActive"
+                                   [class.badge-inactive]="!group.IsActive">
+                  <span class="status-dot" [class.active]="group.IsActive" [class.inactive]="!group.IsActive"></span>
+                  {{ group.IsActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editGroup(group)" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteGroup(group.GroupID!)" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="groups.length === 0">
+              <td colspan="9" class="text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+                <p class="text-muted mt-2">No groups found. Click "Add New Group" to create one.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

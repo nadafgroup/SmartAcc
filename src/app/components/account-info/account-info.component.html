@@ -1,0 +1,278 @@
+<div class="container-fluid p-4 fade-in-up">
+  
+  <!-- Messages -->
+  <div *ngIf="error" class="alert alert-modern alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-circle-fill"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error=''"></button>
+  </div>
+  
+  <div *ngIf="success" class="alert alert-modern alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill"></i>
+    {{ success }}
+    <button type="button" class="btn-close" (click)="success=''"></button>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card-modern">
+    <div class="card-header" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
+      <h4 style="color: white;">
+        <i class="bi bi-people-fill"></i>
+        Account Info Master
+        <span class="badge bg-light text-dark ms-2" style="font-size: 0.7rem;">
+          {{ accounts.length }} Records
+        </span>
+      </h4>
+    </div>
+
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+      <button class="btn-action-toolbar btn-add" (click)="toggleForm()" [disabled]="showForm" title="Add New Record">
+        <i class="bi bi-plus-circle-fill"></i> Add
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-edit" (click)="onEdit()" [disabled]="!selectedRowId || showForm" title="Edit Selected Record">
+        <i class="bi bi-pencil-fill"></i> Edit
+      </button>
+      <button class="btn-action-toolbar btn-delete" (click)="deleteSelected()" [disabled]="!selectedRowId || showForm" title="Delete Selected Record">
+        <i class="bi bi-trash-fill"></i> Delete
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-print" (click)="onPrint()" [disabled]="showForm" title="Print Record">
+        <i class="bi bi-printer-fill"></i> Print
+      </button>
+      <button class="btn-action-toolbar btn-attach" (click)="onAttach()" [disabled]="showForm" title="Attach File">
+        <i class="bi bi-paperclip"></i> Attach
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-confirm" (click)="onConfirm()" [disabled]="!selectedRowId || !showForm" title="Confirm Record">
+        <i class="bi bi-check-circle-fill"></i> Confirm
+      </button>
+      <button class="btn-action-toolbar btn-undo" (click)="onUndo()" [disabled]="!showForm" title="Undo Last Action">
+        <i class="bi bi-arrow-counterclockwise"></i> Undo
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-close" (click)="onClose()" [disabled]="showForm" title="Close">
+        <i class="bi bi-x-circle-fill"></i> Close
+      </button>
+    </div>
+
+    <div class="card-body">
+      
+      <!-- Form Section -->
+      <div *ngIf="showForm" class="form-section">
+        <h5>
+          <i class="bi" [class.bi-pencil-square]="isEditMode" [class.bi-plus-circle]="!isEditMode"></i>
+          {{ isEditMode ? 'Edit' : 'Add New' }} Account
+        </h5>
+        
+        <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
+          <div class="row g-3">
+            <!-- Basic Info -->
+            <div class="col-md-3">
+              <label class="form-label">Account Code <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="AccountCode" 
+                     placeholder="e.g., ACC001">
+              <div *ngIf="accountForm.get('AccountCode')?.invalid && accountForm.get('AccountCode')?.touched" 
+                   class="text-danger">
+                <i class="bi bi-exclamation-circle"></i> Account Code is required
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Account Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="AccountName" 
+                     placeholder="e.g., HDFC Bank">
+              <div *ngIf="accountForm.get('AccountName')?.invalid && accountForm.get('AccountName')?.touched" 
+                   class="text-danger">
+                <i class="bi bi-exclamation-circle"></i> Account Name is required
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Account Group <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="GroupID">
+                <option value="">Select Group</option>
+                <option *ngFor="let group of groups" [value]="group.GroupID">
+                  {{ group.GroupName }} ({{ group.GroupCode }})
+                </option>
+              </select>
+              <div *ngIf="accountForm.get('GroupID')?.invalid && accountForm.get('GroupID')?.touched" 
+                   class="text-danger">
+                <i class="bi bi-exclamation-circle"></i> Account Group is required
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Opening Balance</label>
+              <input type="number" class="form-control" formControlName="OpeningBalance" 
+                     step="0.01" placeholder="0.00">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Balance Type</label>
+              <select class="form-select" formControlName="BalanceType">
+                <option *ngFor="let type of balanceTypes" [value]="type">{{ type }}</option>
+              </select>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="col-md-6">
+              <label class="form-label">Address</label>
+              <input type="text" class="form-control" formControlName="Address" 
+                     placeholder="Street address">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">City</label>
+              <input type="text" class="form-control" formControlName="City" 
+                     placeholder="City">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">State</label>
+              <select class="form-select" formControlName="State">
+                <option value="">Select State</option>
+                <option *ngFor="let state of states" [value]="state">{{ state }}</option>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Pincode</label>
+              <input type="text" class="form-control" formControlName="Pincode" 
+                     placeholder="PIN Code" maxlength="10">
+            </div>
+
+            <!-- Contact Details -->
+            <div class="col-md-3">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-control" formControlName="Phone" 
+                     placeholder="Phone number">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Mobile</label>
+              <input type="text" class="form-control" formControlName="Mobile" 
+                     placeholder="Mobile number">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" formControlName="Email" 
+                     placeholder="email@example.com">
+              <div *ngIf="accountForm.get('Email')?.invalid && accountForm.get('Email')?.touched" 
+                   class="text-danger">
+                <i class="bi bi-exclamation-circle"></i> Enter a valid email
+              </div>
+            </div>
+
+            <!-- Tax Info -->
+            <div class="col-md-3">
+              <label class="form-label">GSTIN</label>
+              <input type="text" class="form-control" formControlName="GSTIN" 
+                     placeholder="GST Number">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">PAN</label>
+              <input type="text" class="form-control" formControlName="PAN" 
+                     placeholder="PAN Number">
+            </div>
+
+            <!-- Status & Remarks -->
+            <div class="col-md-3">
+              <label class="form-label">Status</label>
+              <div class="form-switch mt-2">
+                <input class="form-check-input" type="checkbox" formControlName="IsActive" id="isActive">
+                <label class="form-check-label" for="isActive">
+                  <span class="badge" [class.badge-active]="accountForm.get('IsActive')?.value"
+                                       [class.badge-inactive]="!accountForm.get('IsActive')?.value">
+                    {{ accountForm.get('IsActive')?.value ? 'Active' : 'Inactive' }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Remarks</label>
+              <input type="text" class="form-control" formControlName="Remarks" 
+                     placeholder="Additional notes...">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Table Section -->
+      <div class="table-responsive">
+        <div *ngIf="loading && !showForm" class="text-center py-5">
+          <div class="spinner-modern"></div>
+          <p class="text-muted mt-3">Loading accounts...</p>
+        </div>
+        
+        <table class="table-modern" *ngIf="!loading">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Account Code</th>
+              <th>Account Name</th>
+              <th>Group</th>
+              <th>Contact</th>
+              <th>Opening Balance</th>
+              <th>Type</th>
+              <th>GSTIN</th>
+              <th>Status</th>
+              <th style="text-align: center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let account of accounts; let i = index"
+                [class.selected-row]="selectedRowId === account.AccountID"
+                (click)="selectRow(account.AccountID!)">
+              <td>{{ i + 1 }}</td>
+              <td><strong>{{ account.AccountCode }}</strong></td>
+              <td>{{ account.AccountName }}</td>
+              <td><span class="badge badge-type">{{ account.GroupName }}</span></td>
+              <td>
+                <span *ngIf="account.Mobile" class="d-block small">
+                  <i class="bi bi-phone"></i> {{ account.Mobile }}
+                </span>
+                <span *ngIf="account.Email" class="d-block small">
+                  <i class="bi bi-envelope"></i> {{ account.Email }}
+                </span>
+              </td>
+              <td class="text-end fw-bold">{{ account.OpeningBalance | number:'1.2-2' }}</td>
+              <td>
+                <span class="badge" [class.badge-credit]="account.BalanceType === 'Cr'"
+                                   [class.badge-debit]="account.BalanceType === 'Dr'">
+                  {{ account.BalanceType }}
+                </span>
+              </td>
+              <td>{{ account.GSTIN || '-' }}</td>
+              <td>
+                <span class="badge" [class.badge-active]="account.IsActive"
+                                   [class.badge-inactive]="!account.IsActive">
+                  <span class="status-dot" [class.active]="account.IsActive" [class.inactive]="!account.IsActive"></span>
+                  {{ account.IsActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td style="text-align: center;" (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editAccount(account)" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteAccount(account.AccountID!)" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="accounts.length === 0">
+              <td colspan="10" class="text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+                <p class="text-muted mt-2">No accounts found. Click "Add New Account" to create one.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

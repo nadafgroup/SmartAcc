@@ -1,0 +1,43 @@
+<div class="login-container">
+  <div class="login-box">
+    <h1>Login to Access!</h1>
+    
+    <form >
+      <div class="form-group">
+        <input 
+          type="text" 
+          class="form-control"
+          [(ngModel)]="username" 
+          name="username"
+          placeholder="Username"
+          required>
+      </div>
+
+      <div class="form-group">
+        <input 
+          type="password" 
+          class="form-control"
+          [(ngModel)]="password" 
+          name="password"
+          placeholder="Password"
+          required>
+      </div>
+
+      <button  class="btn-login" [disabled]="loading" (click)="onSubmit()">
+        {{ loading ? 'Loading...' : 'Login' }}
+      </button>
+
+      <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
+      </div>
+
+      <div class="demo-credentials">
+        <p>Demo: <strong>admin</strong> / <strong>admin123</strong></p>
+      </div>
+    </form>
+
+    <div class="login-footer">
+      <p>© 2025 AccSmart</p>
+    </div>
+  </div>
+</div>

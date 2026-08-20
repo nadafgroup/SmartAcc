@@ -1,0 +1,258 @@
+<div class="page-container">
+  <!-- Messages -->
+  <div *ngIf="error" class="alert alert-modern alert-danger alert-dismissible fade show">
+    <i class="bi bi-exclamation-circle-fill"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error=''"></button>
+  </div>
+  
+  <div *ngIf="success" class="alert alert-modern alert-success alert-dismissible fade show">
+    <i class="bi bi-check-circle-fill"></i>
+    {{ success }}
+    <button type="button" class="btn-close" (click)="success=''"></button>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card-modern">
+    <div class="card-header">
+      <h4>
+        <i class="bi bi-building"></i>
+        Firm Management
+        <span class="badge-count">{{ firms.length }} Firms</span>
+      </h4>
+    </div>
+
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+      <button class="btn-action-toolbar btn-add" (click)="toggleForm()" [disabled]="showForm" title="Add New Record">
+        <i class="bi bi-plus-circle-fill"></i> Add
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-edit" (click)="onEdit()" [disabled]="!selectedRowId || showForm" title="Edit Selected Record">
+        <i class="bi bi-pencil-fill"></i> Edit
+      </button>
+      <button class="btn-action-toolbar btn-delete" (click)="deleteSelected()" [disabled]="!selectedRowId || showForm" title="Delete Selected Record">
+        <i class="bi bi-trash-fill"></i> Delete
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-print" (click)="onPrint()" [disabled]="showForm" title="Print Record">
+        <i class="bi bi-printer-fill"></i> Print
+      </button>
+      <button class="btn-action-toolbar btn-attach" (click)="onAttach()" [disabled]="showForm" title="Attach File">
+        <i class="bi bi-paperclip"></i> Attach
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-confirm" (click)="onConfirm()" [disabled]="!selectedRowId || !showForm" title="Confirm Record">
+        <i class="bi bi-check-circle-fill"></i> Confirm
+      </button>
+      <button class="btn-action-toolbar btn-undo" (click)="onUndo()" [disabled]="!showForm" title="Undo Last Action">
+        <i class="bi bi-arrow-counterclockwise"></i> Undo
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-close" (click)="onClose()" [disabled]="showForm" title="Close">
+        <i class="bi bi-x-circle-fill"></i> Close
+      </button>
+    </div>
+
+    <div class="card-body">
+      <!-- Form Section -->
+      <div *ngIf="showForm" class="form-section">
+        <h5>
+          <i class="bi" [class.bi-pencil-square]="isEditMode" [class.bi-plus-circle]="!isEditMode"></i>
+          {{ isEditMode ? 'Edit' : 'Add New' }} Firm
+        </h5>
+        
+        <form [formGroup]="firmForm" (ngSubmit)="onSubmit()">
+          <div class="row g-3">
+            <!-- Basic Info -->
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Code <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="Code" 
+                     placeholder="e.g., 101">
+              <div *ngIf="firmForm.get('Code')?.invalid && firmForm.get('Code')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Trade Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="TradeName" 
+                     placeholder="e.g., PIMPALE SUPER BAZAR">
+              <div *ngIf="firmForm.get('TradeName')?.invalid && firmForm.get('TradeName')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Alias</label>
+              <input type="text" class="form-control" formControlName="Alias" 
+                     placeholder="e.g., PSB">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Legal Name</label>
+              <input type="text" class="form-control" formControlName="LegalName" 
+                     placeholder="Legal name">
+            </div>
+
+            <!-- Tax Info -->
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">PAN No</label>
+              <input type="text" class="form-control" formControlName="PanNo" 
+                     placeholder="PAN Number">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">CIN No</label>
+              <input type="text" class="form-control" formControlName="CINNo" 
+                     placeholder="CIN Number">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">MSME ID</label>
+              <input type="text" class="form-control" formControlName="MSMEId" 
+                     placeholder="MSME ID">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Jurisdiction</label>
+              <input type="text" class="form-control" formControlName="Jurisdiction" 
+                     placeholder="Jurisdiction">
+            </div>
+
+            <!-- Contact -->
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Landline No</label>
+              <input type="text" class="form-control" formControlName="LandlineNo" 
+                     placeholder="Landline">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Mobile No</label>
+              <input type="text" class="form-control" formControlName="MobileNo" 
+                     placeholder="Mobile">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Email ID</label>
+              <input type="email" class="form-control" formControlName="EmailId" 
+                     placeholder="email@example.com">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Web Address</label>
+              <input type="text" class="form-control" formControlName="WebAddress" 
+                     placeholder="www.example.com">
+            </div>
+
+            <!-- Address -->
+            <div class="col-md-6 col-sm-12">
+              <label class="form-label">Address 1</label>
+              <input type="text" class="form-control" formControlName="Address1" 
+                     placeholder="Address line 1">
+            </div>
+
+            <div class="col-md-6 col-sm-12">
+              <label class="form-label">Address 2</label>
+              <input type="text" class="form-control" formControlName="Address2" 
+                     placeholder="Address line 2">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Place</label>
+              <input type="text" class="form-control" formControlName="Place" 
+                     placeholder="City/Village">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">State</label>
+              <select class="form-select" formControlName="State">
+                <option value="">Select State</option>
+                <option *ngFor="let state of states" [value]="state">{{ state }}</option>
+              </select>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Pincode</label>
+              <input type="text" class="form-control" formControlName="Pincode" 
+                     placeholder="PIN Code">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Status</label>
+              <div class="form-switch mt-2">
+                <input class="form-check-input" type="checkbox" formControlName="IsActive" id="isActive">
+                <label class="form-check-label" for="isActive">
+                  <span class="badge" [class.badge-active]="firmForm.get('IsActive')?.value"
+                                       [class.badge-inactive]="!firmForm.get('IsActive')?.value">
+                    {{ firmForm.get('IsActive')?.value ? 'Active' : 'Inactive' }}
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Table Section -->
+      <div class="table-responsive">
+        <div *ngIf="loading && !showForm" class="text-center py-5">
+          <div class="spinner-modern"></div>
+          <p class="text-muted mt-3">Loading firms...</p>
+        </div>
+        
+        <table class="table-modern" *ngIf="!loading">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Code</th>
+              <th>Trade Name</th>
+              <th>Alias</th>
+              <th>Place</th>
+              <th>State</th>
+              <th>Pincode</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let firm of firms; let i = index"
+                [class.selected-row]="selectedRowId === firm.FirmID"
+                (click)="selectRow(firm.FirmID!)">
+              <td>{{ i + 1 }}</td>
+              <td><strong>{{ firm.Code }}</strong></td>
+              <td>{{ firm.TradeName }}</td>
+              <td>{{ firm.Alias || '-' }}</td>
+              <td>{{ firm.Place || '-' }}</td>
+              <td>{{ firm.State || '-' }}</td>
+              <td>{{ firm.Pincode || '-' }}</td>
+              <td>
+                <span class="badge" [class.badge-active]="firm.IsActive"
+                                   [class.badge-inactive]="!firm.IsActive">
+                  <span class="status-dot" [class.active]="firm.IsActive" [class.inactive]="!firm.IsActive"></span>
+                  {{ firm.IsActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editFirm(firm)" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteFirm(firm.FirmID!)" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="firms.length === 0">
+              <td colspan="9" class="text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+                <p class="text-muted mt-2">No firms found. Click "Add New Firm" to create one.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

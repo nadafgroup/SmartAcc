@@ -1,0 +1,14 @@
+{
+  "ignore": [
+    "MSSQLDATA/*",
+    "node_modules/*",
+    "src/*",
+    ".git/*",
+    "*.log"
+  ],
+  "watch": [
+    "server/"
+  ],
+  "ext": "js,json",
+  "verbose": true
+}
