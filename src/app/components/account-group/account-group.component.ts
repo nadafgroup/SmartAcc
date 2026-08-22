@@ -1,17 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { AccountGroupService, AccountGroup } from '../../services/account-group.service';
 
 @Component({
   selector: 'app-account-group',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './account-group.component.html',
   styleUrls: ['./account-group.component.scss']
 })
 export class AccountGroupComponent implements OnInit {
   groups: AccountGroup[] = [];
+  filteredGroups: AccountGroup[] = [];
+  searchTerm: string = '';
   groupForm: FormGroup;
   isEditMode: boolean = false;
   selectedGroupId: number | null = null;
@@ -54,6 +57,7 @@ export class AccountGroupComponent implements OnInit {
         if (response.success) {
           this.groups = response.data;
           this.parentGroups = response.data;
+          this.applyFilter();
         }
         this.loading = false;
       },
@@ -63,6 +67,18 @@ export class AccountGroupComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  applyFilter(): void {
+    const term = this.searchTerm.toLowerCase().trim();
+    if (!term) {
+      this.filteredGroups = this.groups;
+      return;
+    }
+    this.filteredGroups = this.groups.filter(group =>
+      group.GroupCode?.toLowerCase().includes(term) ||
+      group.GroupName?.toLowerCase().includes(term)
+    );
   }
 
   toggleForm(): void {

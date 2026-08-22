@@ -1,10 +1,25 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+
+interface DropdownItem {
+  id: string;
+  label: string;
+  icon: string;
+  route?: string;
+}
+
+interface NavItem {
+  id: string;
+  label: string;
+  icon: string;
+  dropdown?: DropdownItem[];
+}
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
@@ -15,19 +30,19 @@ export class NavbarComponent {
   currentTime = '12:00';
   activeDropdown: string | null = null;
 
-  navItems = [
+  navItems: NavItem[] = [
     { id: 'home', label: 'Home', icon: 'bi-house' },
     {
       id: 'masters',
       label: 'Masters',
       icon: 'bi-files',
       dropdown: [
-        { id: 'firm', label: 'Firm', icon: 'bi-building' },
-        { id: 'branches', label: 'Branches', icon: 'bi-diagram-3' },
-        { id: 'financial-year', label: 'Financial Year', icon: 'bi-calendar3' },
-        { id: 'balance-forward', label: 'Balance Forward', icon: 'bi-arrow-left-right' },
-        { id: 'account-groups', label: 'Account Groups', icon: 'bi-folder2-open' },
-        { id: 'account-info', label: 'Account Info', icon: 'bi-people' }
+        { id: 'firm', label: 'Firm', icon: 'bi-building', route: '/firms' },
+        { id: 'branches', label: 'Branches', icon: 'bi-diagram-3', route: '/branches' },
+        { id: 'financial-year', label: 'Financial Year', icon: 'bi-calendar3', route: '/financial-year' },
+        { id: 'balance-forward', label: 'Balance Forward', icon: 'bi-arrow-left-right', route: '/balance-forward' },
+        { id: 'account-groups', label: 'Account Groups', icon: 'bi-folder2-open', route: '/groups' },
+        { id: 'account-info', label: 'Account Info', icon: 'bi-people', route: '/accounts' }
       ]
     },
     {

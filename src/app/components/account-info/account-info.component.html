@@ -15,13 +15,11 @@
 
   <!-- Main Card -->
   <div class="card-modern">
-    <div class="card-header" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
-      <h4 style="color: white;">
+    <div class="card-header">
+      <h4>
         <i class="bi bi-people-fill"></i>
         Account Info Master
-        <span class="badge bg-light text-dark ms-2" style="font-size: 0.7rem;">
-          {{ accounts.length }} Records
-        </span>
+        <span class="badge-count">{{ accounts.length }} Records</span>
       </h4>
     </div>
 
@@ -202,6 +200,25 @@
         </form>
       </div>
 
+      <!-- Filter Bar -->
+      <div class="filter-bar" *ngIf="!showForm">
+        <div class="filter-input-group">
+          <i class="bi bi-search"></i>
+          <input 
+            type="text" 
+            class="filter-input" 
+            placeholder="Search by Account Code or Name..." 
+            [(ngModel)]="searchTerm"
+            (input)="applyFilter()">
+          <button *ngIf="searchTerm" class="filter-clear" (click)="searchTerm=''; applyFilter()">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        </div>
+        <span class="filter-count" *ngIf="filteredAccounts.length !== accounts.length">
+          Showing {{ filteredAccounts.length }} of {{ accounts.length }} records
+        </span>
+      </div>
+
       <!-- Table Section -->
       <div class="table-responsive">
         <div *ngIf="loading && !showForm" class="text-center py-5">
@@ -209,69 +226,120 @@
           <p class="text-muted mt-3">Loading accounts...</p>
         </div>
         
-        <table class="table-modern" *ngIf="!loading">
+        <!-- Desktop Table View -->
+        <table class="table-modern desktop-view" *ngIf="!loading">
           <thead>
             <tr>
               <th>#</th>
-              <th>Account Code</th>
               <th>Account Name</th>
               <th>Group</th>
               <th>Contact</th>
-              <th>Opening Balance</th>
-              <th>Type</th>
               <th>GSTIN</th>
-              <th>Status</th>
               <th style="text-align: center;">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let account of accounts; let i = index"
+            <tr *ngFor="let account of filteredAccounts; let i = index"
                 [class.selected-row]="selectedRowId === account.AccountID"
                 (click)="selectRow(account.AccountID!)">
               <td>{{ i + 1 }}</td>
-              <td><strong>{{ account.AccountCode }}</strong></td>
-              <td>{{ account.AccountName }}</td>
+              <td><strong>{{ account.AccountName }}</strong></td>
               <td><span class="badge badge-type">{{ account.GroupName }}</span></td>
               <td>
+                <span *ngIf="account.Phone" class="d-block small">
+                  <i class="bi bi-telephone"></i> {{ account.Phone }}
+                </span>
                 <span *ngIf="account.Mobile" class="d-block small">
                   <i class="bi bi-phone"></i> {{ account.Mobile }}
                 </span>
-                <span *ngIf="account.Email" class="d-block small">
-                  <i class="bi bi-envelope"></i> {{ account.Email }}
-                </span>
-              </td>
-              <td class="text-end fw-bold">{{ account.OpeningBalance | number:'1.2-2' }}</td>
-              <td>
-                <span class="badge" [class.badge-credit]="account.BalanceType === 'Cr'"
-                                   [class.badge-debit]="account.BalanceType === 'Dr'">
-                  {{ account.BalanceType }}
-                </span>
               </td>
               <td>{{ account.GSTIN || '-' }}</td>
-              <td>
-                <span class="badge" [class.badge-active]="account.IsActive"
-                                   [class.badge-inactive]="!account.IsActive">
-                  <span class="status-dot" [class.active]="account.IsActive" [class.inactive]="!account.IsActive"></span>
-                  {{ account.IsActive ? 'Active' : 'Inactive' }}
-                </span>
-              </td>
               <td style="text-align: center;" (click)="$event.stopPropagation()">
                 <button class="btn-action btn-edit" (click)="editAccount(account)" title="Edit">
-                  <i class="bi bi-pencil"></i>
+                  <i class="bi bi-pencil-fill"></i>
                 </button>
                 <button class="btn-action btn-delete" (click)="deleteAccount(account.AccountID!)" title="Delete">
-                  <i class="bi bi-trash"></i>
+                  <i class="bi bi-trash-fill"></i>
                 </button>
               </td>
             </tr>
-            <tr *ngIf="accounts.length === 0">
-              <td colspan="10" class="text-center py-5">
+            <tr *ngIf="filteredAccounts.length === 0">
+              <td colspan="6" class="text-center py-3">
                 <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
                 <p class="text-muted mt-2">No accounts found. Click "Add New Account" to create one.</p>
               </td>
             </tr>
           </tbody>
         </table>
+
+        <!-- Mobile Card View -->
+        <div class="mobile-cards" *ngIf="!loading">
+          <div *ngIf="filteredAccounts.length === 0" class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+            <p class="text-muted mt-2">No accounts found.</p>
+          </div>
+          <div class="group-card" *ngFor="let account of filteredAccounts; let i = index"
+               [class.selected-card]="selectedRowId === account.AccountID"
+               (click)="selectRow(account.AccountID!)">
+            <div class="card-header-row">
+              <span class="card-index">#{{ i + 1 }}</span>
+              <span class="card-code"><strong>{{ account.AccountCode }}</strong></span>
+              <div class="card-actions" (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editAccount(account)" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteAccount(account.AccountID!)" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body-row">
+              <div class="card-field">
+                <span class="field-label">Account Name</span>
+                <span class="field-value">{{ account.AccountName }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Group</span>
+                <span class="field-value"><span class="badge badge-type">{{ account.GroupName }}</span></span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Opening Balance</span>
+                <span class="field-value fw-bold">{{ account.OpeningBalance | number:'1.2-2' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Type</span>
+                <span class="field-value">
+                  <span class="badge" [class.badge-credit]="account.BalanceType === 'Cr'"
+                                     [class.badge-debit]="account.BalanceType === 'Dr'">
+                    {{ account.BalanceType }}
+                  </span>
+                </span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Mobile</span>
+                <span class="field-value">{{ account.Mobile || '-' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Email</span>
+                <span class="field-value">{{ account.Email || '-' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">GSTIN</span>
+                <span class="field-value">{{ account.GSTIN || '-' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Status</span>
+                <span class="field-value">
+                  <span class="badge" [class.badge-active]="account.IsActive"
+                                     [class.badge-inactive]="!account.IsActive">
+                    <span class="status-dot" [class.active]="account.IsActive" [class.inactive]="!account.IsActive"></span>
+                    {{ account.IsActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

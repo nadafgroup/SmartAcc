@@ -1,17 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { FirmService, Firm } from '../../services/firm.service';
 
 @Component({
   selector: 'app-firm',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './firm.component.html',
   styleUrls: ['./firm.component.scss']
 })
 export class FirmComponent implements OnInit {
   firms: Firm[] = [];
+  filteredFirms: Firm[] = [];
+  searchTerm: string = '';
   firmForm: FormGroup;
   isEditMode: boolean = false;
   selectedFirmId: number | null = null;
@@ -61,6 +64,7 @@ export class FirmComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.firms = response.data;
+          this.applyFilter();
         }
         this.loading = false;
       },
@@ -70,6 +74,18 @@ export class FirmComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  applyFilter(): void {
+    const term = this.searchTerm.toLowerCase().trim();
+    if (!term) {
+      this.filteredFirms = this.firms;
+      return;
+    }
+    this.filteredFirms = this.firms.filter(firm =>
+      firm.Code?.toLowerCase().includes(term) ||
+      firm.TradeName?.toLowerCase().includes(term)
+    );
   }
 
   toggleForm(): void {

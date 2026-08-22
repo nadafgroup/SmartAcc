@@ -22,7 +22,7 @@
           
           <ul class="dropdown-menu" *ngIf="item.dropdown && activeDropdown === item.id">
             <li *ngFor="let subItem of item.dropdown">
-              <a (click)="selectMenuItem(item.id, subItem.id)">
+              <a [routerLink]="subItem.route" (click)="activeDropdown = null">
                 <i [class]="'bi ' + subItem.icon"></i>
                 {{ subItem.label }}
               </a>

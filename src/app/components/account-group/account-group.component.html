@@ -146,6 +146,25 @@
         </form>
       </div>
 
+      <!-- Filter Bar -->
+      <div class="filter-bar" *ngIf="!showForm">
+        <div class="filter-input-group">
+          <i class="bi bi-search"></i>
+          <input 
+            type="text" 
+            class="filter-input" 
+            placeholder="Search by Group Code or Name..." 
+            [(ngModel)]="searchTerm"
+            (input)="applyFilter()">
+          <button *ngIf="searchTerm" class="filter-clear" (click)="searchTerm=''; applyFilter()">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        </div>
+        <span class="filter-count" *ngIf="filteredGroups.length !== groups.length">
+          Showing {{ filteredGroups.length }} of {{ groups.length }} records
+        </span>
+      </div>
+
       <!-- Table Section -->
       <div class="table-responsive">
         <div *ngIf="loading && !showForm" class="text-center py-5">
@@ -153,7 +172,8 @@
           <p class="text-muted mt-3">Loading groups...</p>
         </div>
         
-        <table class="table-modern" *ngIf="!loading">
+        <!-- Desktop Table View -->
+        <table class="table-modern desktop-view" *ngIf="!loading">
           <thead>
             <tr>
               <th>#</th>
@@ -168,7 +188,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let group of groups; let i = index"
+            <tr *ngFor="let group of filteredGroups; let i = index"
                 [class.selected-row]="selectedRowId === group.GroupID"
                 (click)="selectRow(group.GroupID!)">
               <td>{{ i + 1 }}</td>
@@ -199,10 +219,10 @@
               </td>
               <td (click)="$event.stopPropagation()">
                 <button class="btn-action btn-edit" (click)="editGroup(group)" title="Edit">
-                  <i class="bi bi-pencil"></i>
+                  <i class="bi bi-pencil-fill"></i>
                 </button>
                 <button class="btn-action btn-delete" (click)="deleteGroup(group.GroupID!)" title="Delete">
-                  <i class="bi bi-trash"></i>
+                  <i class="bi bi-trash-fill"></i>
                 </button>
               </td>
             </tr>
@@ -214,6 +234,67 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Mobile Card View -->
+        <div class="mobile-cards" *ngIf="!loading">
+          <div *ngIf="filteredGroups.length === 0" class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+            <p class="text-muted mt-2">No groups found.</p>
+          </div>
+          <div class="group-card" *ngFor="let group of filteredGroups; let i = index"
+               [class.selected-card]="selectedRowId === group.GroupID"
+               (click)="selectRow(group.GroupID!)">
+            <div class="card-header-row">
+              <span class="card-index">#{{ i + 1 }}</span>
+              <span class="card-code"><strong>{{ group.GroupCode }}</strong></span>
+              <div class="card-actions" (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editGroup(group)" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteGroup(group.GroupID!)" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body-row">
+              <div class="card-field">
+                <span class="field-label">Group Name</span>
+                <span class="field-value">{{ group.GroupName }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Parent Group</span>
+                <span class="field-value">{{ group.ParentGroupName || '-' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Type</span>
+                <span class="field-value"><span class="badge badge-type">{{ group.GroupType }}</span></span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Nature</span>
+                <span class="field-value">
+                  <span class="badge" [class.badge-credit]="group.NatureOfAccount === 'Credit'"
+                                     [class.badge-debit]="group.NatureOfAccount === 'Debit'">
+                    {{ group.NatureOfAccount }}
+                  </span>
+                </span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Opening Balance</span>
+                <span class="field-value fw-bold">{{ group.OpeningBalance | number:'1.2-2' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Status</span>
+                <span class="field-value">
+                  <span class="badge" [class.badge-active]="group.IsActive"
+                                     [class.badge-inactive]="!group.IsActive">
+                    <span class="status-dot" [class.active]="group.IsActive" [class.inactive]="!group.IsActive"></span>
+                    {{ group.IsActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

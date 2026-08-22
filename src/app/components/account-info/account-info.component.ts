@@ -1,18 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { AccountInfoService, AccountInfo } from '../../services/account-info.service';
 import { AccountGroupService, AccountGroup } from '../../services/account-group.service';
 
 @Component({
   selector: 'app-account-info',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './account-info.component.html',
   styleUrls: ['./account-info.component.scss']
 })
 export class AccountInfoComponent implements OnInit {
   accounts: AccountInfo[] = [];
+  filteredAccounts: AccountInfo[] = [];
+  searchTerm: string = '';
   accountForm: FormGroup;
   isEditMode: boolean = false;
   selectedAccountId: number | null = null;
@@ -64,6 +67,7 @@ export class AccountInfoComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.accounts = response.data;
+          this.applyFilter();
         }
         this.loading = false;
       },
@@ -73,6 +77,24 @@ export class AccountInfoComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  applyFilter(): void {
+    const term = this.searchTerm.toLowerCase().trim();
+    if (!term) {
+      this.filteredAccounts = this.accounts;
+      return;
+    }
+    this.filteredAccounts = this.accounts.filter(account =>
+      (account.AccountCode && account.AccountCode.toLowerCase().includes(term)) ||
+      (account.AccountName && account.AccountName.toLowerCase().includes(term)) ||
+      (account.GroupName && account.GroupName.toLowerCase().includes(term))
+    );
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.applyFilter();
   }
 
   loadGroups(): void {
