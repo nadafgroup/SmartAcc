@@ -16,11 +16,13 @@ const groupRoutes = require('./routes/accountGroupRoutes');
 const accountRoutes = require('./routes/accountInfoRoutes');
 const authRoutes = require('./routes/authRoutes');
 const firmRoutes = require('./routes/firmRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/firms', firmRoutes);
+app.use('/api/users', userRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -50,6 +52,7 @@ async function startServer() {
             console.log(`\n🚀 AccSmart Server running on http://localhost:${PORT}`);
             console.log(`📊 API URL: http://localhost:${PORT}/api`);
             console.log(`🔐 Auth URL: http://localhost:${PORT}/api/auth`);
+            console.log(`👤 Users URL: http://localhost:${PORT}/api/users`);
             console.log(`\n✨ Ready to accept requests!\n`);
         });
     } catch (err) {

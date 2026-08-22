@@ -1,0 +1,267 @@
+<div class="page-container">
+  <!-- Messages -->
+  <div *ngIf="error" class="alert alert-modern alert-danger">
+    <i class="bi bi-exclamation-circle-fill"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error=''"></button>
+  </div>
+  
+  <div *ngIf="success" class="alert alert-modern alert-success">
+    <i class="bi bi-check-circle-fill"></i>
+    {{ success }}
+    <button type="button" class="btn-close" (click)="success=''"></button>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card-modern">
+    <div class="card-header">
+      <h4>
+        <i class="bi bi-people-fill"></i>
+        User Management
+        <span class="badge-count">{{ users.length }} Users</span>
+      </h4>
+    </div>
+
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+      <button class="btn-action-toolbar btn-add" (click)="toggleForm()" [disabled]="showForm">
+        <i class="bi bi-plus-circle-fill"></i> Add
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-edit" (click)="onEdit()" [disabled]="!selectedRowId || showForm">
+        <i class="bi bi-pencil-fill"></i> Edit
+      </button>
+      <button class="btn-action-toolbar btn-delete" (click)="deleteSelected()" [disabled]="!selectedRowId || showForm">
+        <i class="bi bi-trash-fill"></i> Delete
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-print" (click)="onPrint()" [disabled]="showForm">
+        <i class="bi bi-printer-fill"></i> Print
+      </button>
+      <button class="btn-action-toolbar btn-attach" (click)="onAttach()" [disabled]="showForm">
+        <i class="bi bi-paperclip"></i> Attach
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-confirm" (click)="onConfirm()" [disabled]="!selectedRowId">
+        <i class="bi bi-check-circle-fill"></i> Confirm
+      </button>
+      <button class="btn-action-toolbar btn-undo" (click)="onUndo()" [disabled]="!showForm">
+        <i class="bi bi-arrow-counterclockwise"></i> Undo
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-close" (click)="onClose()" [disabled]="showForm">
+        <i class="bi bi-x-circle-fill"></i> Close
+      </button>
+    </div>
+
+    <div class="card-body">
+      <!-- Form Section -->
+      <div *ngIf="showForm" class="form-section">
+        <h5>
+          <i class="bi" [class.bi-pencil-square]="isEditMode" [class.bi-plus-circle]="!isEditMode"></i>
+          {{ isEditMode ? 'Edit' : 'Add New' }} User
+        </h5>
+        
+        <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+          <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">User Code <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="UserCode" placeholder="e.g., USR001">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Username <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="Username" placeholder="e.g., john.doe">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Full Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="FullName" placeholder="e.g., John Doe">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" formControlName="Email" placeholder="email@example.com">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Password <span class="text-danger" *ngIf="!isEditMode">*</span></label>
+              <input type="password" class="form-control" formControlName="Password" placeholder="Min 6 characters">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Role <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="Role">
+                <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+              </select>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Department</label>
+              <select class="form-select" formControlName="Department">
+                <option value="">Select Department</option>
+                <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+              </select>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Designation</label>
+              <input type="text" class="form-control" formControlName="Designation" placeholder="e.g., Manager">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-control" formControlName="Phone" placeholder="Phone number">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Mobile</label>
+              <input type="text" class="form-control" formControlName="Mobile" placeholder="Mobile number">
+            </div>
+
+            <div class="col-md-6 col-sm-12">
+              <label class="form-label">Address</label>
+              <input type="text" class="form-control" formControlName="Address" placeholder="Street address">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">City</label>
+              <input type="text" class="form-control" formControlName="City" placeholder="City">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">State</label>
+              <select class="form-select" formControlName="State">
+                <option value="">Select State</option>
+                <option *ngFor="let state of states" [value]="state">{{ state }}</option>
+              </select>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Pincode</label>
+              <input type="text" class="form-control" formControlName="Pincode" placeholder="PIN Code">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Status</label>
+              <div class="form-switch mt-2">
+                <input class="form-check-input" type="checkbox" formControlName="IsActive" id="isActive">
+                <label class="form-check-label" for="isActive">
+                  <span class="badge" [class.badge-active]="userForm.get('IsActive')?.value"
+                                       [class.badge-inactive]="!userForm.get('IsActive')?.value">
+                    {{ userForm.get('IsActive')?.value ? 'Active' : 'Inactive' }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Locked</label>
+              <div class="form-switch mt-2">
+                <input class="form-check-input" type="checkbox" formControlName="IsLocked" id="isLocked">
+                <label class="form-check-label" for="isLocked">
+                  <span class="badge" [class.badge-danger]="userForm.get('IsLocked')?.value"
+                                       [class.badge-active]="!userForm.get('IsLocked')?.value">
+                    {{ userForm.get('IsLocked')?.value ? 'Locked' : 'Unlocked' }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-sm-12">
+              <label class="form-label">Remarks</label>
+              <input type="text" class="form-control" formControlName="Remarks" placeholder="Additional notes...">
+            </div>
+
+            <div class="col-12">
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn-primary-gradient" [disabled]="loading">
+                  <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                  <i class="bi" [class.bi-pencil]="isEditMode" [class.bi-plus]="!isEditMode"></i>
+                  {{ isEditMode ? 'Update User' : 'Save User' }}
+                </button>
+                <button type="button" class="btn-secondary-gradient" (click)="cancel()">
+                  <i class="bi bi-x-circle"></i> Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar" *ngIf="!showForm">
+        <div class="filter-input-group">
+          <i class="bi bi-search"></i>
+          <input type="text" class="filter-input" placeholder="Search by Code, Username, or Name..." 
+                 [(ngModel)]="searchTerm" (input)="applyFilter()">
+          <button *ngIf="searchTerm" class="filter-clear" (click)="searchTerm=''; applyFilter()">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        </div>
+        <span class="filter-count" *ngIf="filteredUsers.length !== users.length">
+          Showing {{ filteredUsers.length }} of {{ users.length }} records
+        </span>
+      </div>
+
+      <!-- Table -->
+      <div class="table-responsive">
+        <div *ngIf="loading && !showForm" class="text-center py-5">
+          <div class="spinner-modern"></div>
+          <p class="text-muted mt-3">Loading users...</p>
+        </div>
+        
+        <table class="table-modern" *ngIf="!loading">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>User Code</th>
+              <th>Username</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Department</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of filteredUsers; let i = index"
+                [class.selected-row]="selectedRowId === user.UserID"
+                (click)="selectRow(user.UserID!)">
+              <td>{{ i + 1 }}</td>
+              <td><strong>{{ user.UserCode }}</strong></td>
+              <td>{{ user.Username }}</td>
+              <td>{{ user.FullName }}</td>
+              <td>{{ user.Email || '-' }}</td>
+              <td><span class="badge badge-type">{{ user.Role }}</span></td>
+              <td>{{ user.Department || '-' }}</td>
+              <td>
+                <span class="badge" [class.badge-active]="user.IsActive"
+                                   [class.badge-inactive]="!user.IsActive">
+                  <span class="status-dot" [class.active]="user.IsActive" [class.inactive]="!user.IsActive"></span>
+                  {{ user.IsActive ? 'Active' : 'Inactive' }}
+                </span>
+                <span *ngIf="user.IsLocked" class="badge badge-danger ms-1">🔒</span>
+              </td>
+              <td (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editUser(user)" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteUser(user.UserID!)" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="users.length === 0">
+              <td colspan="9" class="text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+                <p class="text-muted mt-2">No users found. Click "Add" to create one.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

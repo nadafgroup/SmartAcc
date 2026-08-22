@@ -2,11 +2,11 @@
   <div class="navbar-left">
     <div class="logo">
       <i class="bi bi-calculator-fill"></i>
-      <span class="logo-text">DSSERP</span>
+      <span class="logo-text">AccSmart</span>
     </div>
     <div class="navbar-search">
       <i class="bi bi-search"></i>
-      <input type="text" placeholder="Search..." />
+      <input type="text" placeholder="Search here..." />
     </div>
   </div>
 
@@ -14,25 +14,18 @@
     <div class="navbar-menu">
       <ul>
         <li *ngFor="let item of navItems" class="nav-item">
-          <a (click)="toggleDropdown(item.id)">
+          <a (click)="selectMenu(item.id)" [class.active]="activeMenu === item.id">
             <i [class]="'bi ' + item.icon"></i>
             {{ item.label }}
-            <i class="bi bi-chevron-down" *ngIf="item.dropdown"></i>
           </a>
-          
-          <ul class="dropdown-menu" *ngIf="item.dropdown && activeDropdown === item.id">
-            <li *ngFor="let subItem of item.dropdown">
-              <a [routerLink]="subItem.route" (click)="activeDropdown = null">
-                <i [class]="'bi ' + subItem.icon"></i>
-                {{ subItem.label }}
-              </a>
-            </li>
-          </ul>
         </li>
       </ul>
     </div>
-    <button class="btn-logout" (click)="logout()">
-      <i class="bi bi-box-arrow-right"></i>
-    </button>
+    
+    <div class="navbar-actions">
+      <button class="btn-logout" (click)="logout()" title="Logout">
+        <i class="bi bi-box-arrow-right"></i>
+      </button>
+    </div>
   </div>
 </nav>

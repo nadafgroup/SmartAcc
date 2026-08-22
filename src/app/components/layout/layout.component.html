@@ -2,6 +2,8 @@
   <app-navbar (menuSelected)="onMenuSelected($event)"></app-navbar>
   
   <div class="layout-body">
+    <app-sidebar [activeMenu]="activeMenu"></app-sidebar>
+    
     <div class="main-content">
       <div class="content-wrapper">
         <router-outlet></router-outlet>

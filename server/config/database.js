@@ -1,12 +1,14 @@
 const sql = require('mssql');
 
+// SQL Server 2008 R2 Configuration
+// Your database files are in: F:\RashidWeb\MSSQLDATA
 const config = {
     user: 'sa',
     password: 'hpserver',
-    server: 'HP\\HP2008R2',
+    server: 'HP\\HP2008R2',  // Your SQL Server instance
     database: 'AccSmartDB',
     options: {
-        encrypt: false,
+        encrypt: false,  // SQL Server 2008 R2 doesn't support encryption
         enableArithAbort: true,
         trustServerCertificate: true
     },
@@ -17,6 +19,7 @@ const config = {
     }
 };
 
+// Connection pool
 let pool = null;
 
 async function connectDB() {
@@ -25,9 +28,17 @@ async function connectDB() {
         console.log('✅ Connected to SQL Server 2008 R2 successfully!');
         console.log(`   Server: ${config.server}`);
         console.log(`   Database: ${config.database}`);
+        console.log(`   Data Path: F:\\RashidWeb\\MSSQLDATA`);
         return pool;
     } catch (err) {
-        console.error('❌ Database connection failed:', err.message);
+        console.error('❌ Database connection failed:');
+        console.error(`   Error: ${err.message}`);
+        if (err.message.includes('Login failed')) {
+            console.error('   Please check username and password');
+        }
+        if (err.message.includes('Cannot find')) {
+            console.error('   Please check server name and instance');
+        }
         throw err;
     }
 }

@@ -1,80 +1,58 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-
-interface DropdownItem {
-  id: string;
-  label: string;
-  icon: string;
-  route?: string;
-}
+import { Router } from '@angular/router';
 
 interface NavItem {
   id: string;
   label: string;
   icon: string;
-  dropdown?: DropdownItem[];
 }
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
-  @Output() menuSelected = new EventEmitter<{ menuId: string; subMenuId: string }>();
+  @Output() menuSelected = new EventEmitter<string>();
 
-  currentDate = new Date();
-  currentTime = '12:00';
-  activeDropdown: string | null = null;
+  activeMenu: string = 'master';
+  currentDate: Date = new Date();
+  currentTime: string = '';
 
+  // Top-level menu items
   navItems: NavItem[] = [
-    { id: 'home', label: 'Home', icon: 'bi-house' },
-    {
-      id: 'masters',
-      label: 'Masters',
-      icon: 'bi-files',
-      dropdown: [
-        { id: 'firm', label: 'Firm', icon: 'bi-building', route: '/firms' },
-        { id: 'branches', label: 'Branches', icon: 'bi-diagram-3', route: '/branches' },
-        { id: 'financial-year', label: 'Financial Year', icon: 'bi-calendar3', route: '/financial-year' },
-        { id: 'balance-forward', label: 'Balance Forward', icon: 'bi-arrow-left-right', route: '/balance-forward' },
-        { id: 'account-groups', label: 'Account Groups', icon: 'bi-folder2-open', route: '/groups' },
-        { id: 'account-info', label: 'Account Info', icon: 'bi-people', route: '/accounts' }
-      ]
-    },
-    {
-      id: 'finance',
-      label: 'Finance',
-      icon: 'bi-coin',
-      dropdown: [
-        { id: 'finance-dashboard', label: 'Dashboard', icon: 'bi-grid' },
-        { id: 'transactions', label: 'Transactions', icon: 'bi-receipt' }
-      ]
-    },
-    {
-      id: 'admin',
-      label: 'Admin',
-      icon: 'bi-person-gear',
-      dropdown: [
-        { id: 'users', label: 'Users', icon: 'bi-people' },
-        { id: 'settings', label: 'Settings', icon: 'bi-gear' }
-      ]
-    }
+    { id: 'master', label: 'Master', icon: 'bi-files' },
+    { id: 'purchase', label: 'Purchase', icon: 'bi-bag' },
+    { id: 'sale', label: 'Sale', icon: 'bi-cart' },
+    { id: 'finance', label: 'Finance', icon: 'bi-coin' },
+    { id: 'admin', label: 'Admin', icon: 'bi-person-gear' }
   ];
 
-  toggleDropdown(menuId: string): void {
-    this.activeDropdown = this.activeDropdown === menuId ? null : menuId;
+  constructor(private router: Router) {
+    this.updateTime();
+    setInterval(() => this.updateTime(), 1000);
   }
 
-  selectMenuItem(menuId: string, subMenuId: string): void {
-    this.activeDropdown = null;
-    this.menuSelected.emit({ menuId, subMenuId });
+  updateTime(): void {
+    const now = new Date();
+    this.currentTime = now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  }
+
+  selectMenu(menuId: string): void {
+    this.activeMenu = menuId;
+    this.menuSelected.emit(menuId);
   }
 
   logout(): void {
-    // Handle logout
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user');
+    this.router.navigate(['/login']);
   }
 }

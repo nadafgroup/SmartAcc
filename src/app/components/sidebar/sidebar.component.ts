@@ -1,6 +1,18 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+
+interface SidebarItem {
+  id: string;
+  label: string;
+  icon: string;
+  route: string;
+}
+
+interface SidebarGroup {
+  title: string;
+  items: SidebarItem[];
+}
 
 @Component({
   selector: 'app-sidebar',
@@ -9,48 +21,128 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent {
-  @Input() activeMenu: string = 'masters';
+export class SidebarComponent implements OnChanges {
+  @Input() activeMenu: string = 'master';
 
-  menuItems: any[] = [];
+  // Firm info
+  firmPlace: string = 'KAGWAD';
+  firmName: string = 'PIMPALE SUPER BAZAR (20262027)';
 
-  private menus: { [key: string]: any[] } = {
-    masters: [
-      { id: 'firm', label: 'Firm', icon: 'bi-building', route: '/firms' },
-      { id: 'branches', label: 'Branches', icon: 'bi-diagram-3', route: '/branches' },
-      { id: 'financial-year', label: 'Financial Year', icon: 'bi-calendar3', route: '/financial-year' },
-      { id: 'balance-forward', label: 'Balance Forward', icon: 'bi-arrow-left-right', route: '/balance-forward' },
-      { id: 'account-groups', label: 'Account Groups', icon: 'bi-folder2-open', route: '/groups' },
-      { id: 'account-info', label: 'Account Info', icon: 'bi-people', route: '/accounts' }
-    ],
+  // Sidebar groups
+  sidebarGroups: SidebarGroup[] = [];
+  menuTitle: string = '';
 
-    finance: [
-      { id: 'finance-dashboard', label: 'Finance Dashboard', icon: 'bi-grid', route: '/dashboard' },
-      { id: 'transactions', label: 'Transactions', icon: 'bi-receipt', route: '/transactions' }
-    ],
-
-    admin: [
-      { id: 'users', label: 'Users', icon: 'bi-people', route: '/users' },
-      { id: 'settings', label: 'Settings', icon: 'bi-gear', route: '/settings' }
-    ],
-
-    home: [
-      { id: 'dashboard', label: 'Dashboard', icon: 'bi-grid-1x2', route: '/dashboard' }
-    ]
+  // Menu configurations with groups
+  private menus: { [key: string]: { title: string, groups: SidebarGroup[] } } = {
+    master: {
+      title: 'Master',
+      groups: [
+        {
+          title: 'Master',
+          items: [
+            { id: 'firm', label: 'Firm', icon: 'bi-building', route: '/firms' },
+            { id: 'branches', label: 'Branches', icon: 'bi-diagram-3', route: '/branches' },
+            { id: 'financial-year', label: 'Financial Year', icon: 'bi-calendar3', route: '/financial-year' },
+            { id: 'balance-forward', label: 'Balance Forward', icon: 'bi-arrow-left-right', route: '/balance-forward' },
+            { id: 'account-groups', label: 'Account Groups', icon: 'bi-folder2-open', route: '/groups' },
+            { id: 'account-info', label: 'Account Info', icon: 'bi-people', route: '/accounts' }
+          ]
+        }
+      ]
+    },
+    purchase: {
+      title: 'Purchase',
+      groups: [
+        {
+          title: 'Purchase',
+          items: [
+            { id: 'purchase-orders', label: 'Purchase Orders', icon: 'bi-file-earmark-text', route: '/purchase/orders' },
+            { id: 'purchase-invoice', label: 'Purchase Invoice', icon: 'bi-file-earmark', route: '/purchase/invoice' },
+            { id: 'purchase-return', label: 'Purchase Return', icon: 'bi-arrow-return-left', route: '/purchase/return' },
+            { id: 'suppliers', label: 'Suppliers', icon: 'bi-people', route: '/suppliers' }
+          ]
+        }
+      ]
+    },
+    sale: {
+      title: 'Sale',
+      groups: [
+        {
+          title: 'Sale',
+          items: [
+            { id: 'sales-orders', label: 'Sales Orders', icon: 'bi-file-earmark-text', route: '/sales/orders' },
+            { id: 'sales-invoice', label: 'Sales Invoice', icon: 'bi-file-earmark', route: '/sales/invoice' },
+            { id: 'sales-return', label: 'Sales Return', icon: 'bi-arrow-return-right', route: '/sales/return' },
+            { id: 'customers', label: 'Customers', icon: 'bi-people', route: '/customers' }
+          ]
+        }
+      ]
+    },
+    finance: {
+      title: 'Finance',
+      groups: [
+        {
+          title: 'Finance',
+          items: [
+            { id: 'dashboard', label: 'Dashboard', icon: 'bi-grid-1x2', route: '/dashboard' },
+            { id: 'transactions', label: 'Transactions', icon: 'bi-receipt', route: '/transactions' },
+            { id: 'vouchers', label: 'Vouchers', icon: 'bi-journal', route: '/vouchers' },
+            { id: 'ledger', label: 'Ledger', icon: 'bi-book', route: '/ledger' },
+            { id: 'trial-balance', label: 'Trial Balance', icon: 'bi-balance', route: '/trial-balance' }
+          ]
+        }
+      ]
+    },
+    admin: {
+      title: 'Admin',
+      groups: [
+        {
+          title: 'Master',
+          items: [
+            { id: 'firm', label: 'Firm', icon: 'bi-building', route: '/firms' },
+            { id: 'branches', label: 'Branches', icon: 'bi-diagram-3', route: '/branches' },
+            { id: 'financial-year', label: 'Financial Year', icon: 'bi-calendar3', route: '/financial-year' },
+            { id: 'balance-forward', label: 'Balance Forward', icon: 'bi-arrow-left-right', route: '/balance-forward' },
+            { id: 'account-groups', label: 'Account Groups', icon: 'bi-folder2-open', route: '/groups' },
+            { id: 'account-info', label: 'Account Info', icon: 'bi-people', route: '/accounts' }
+          ]
+        },
+        {
+          title: 'Security',
+          items: [
+            { id: 'users', label: 'Users', icon: 'bi-people', route: '/users' },
+            { id: 'roles', label: 'Roles & Permissions', icon: 'bi-shield', route: '/roles' },
+            { id: 'audit', label: 'Audit Logs', icon: 'bi-clock-history', route: '/audit' }
+          ]
+        },
+        {
+          title: 'Settings',
+          items: [
+            { id: 'application-settings', label: 'Application Settings', icon: 'bi-gear', route: '/settings' },
+            { id: 'voucher-pages', label: 'Voucher Pages', icon: 'bi-file-text', route: '/voucher-pages' }
+          ]
+        }
+      ]
+    }
   };
 
   constructor() {
-    this.menuItems = this.menus[this.activeMenu] || this.menus['masters'];
+    this.loadMenu('master');
   }
 
-  get menuTitle(): string {
-    const titles: { [key: string]: string } = {
-      home: 'Home',
-      masters: 'Masters',
-      finance: 'Finance',
-      admin: 'Admin'
-    };
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['activeMenu']) {
+      this.loadMenu(this.activeMenu);
+    }
+  }
 
-    return titles[this.activeMenu] || 'Menu';
+  loadMenu(menuId: string): void {
+    const menu = this.menus[menuId] || this.menus['master'];
+    this.menuTitle = menu.title;
+    this.sidebarGroups = menu.groups;
+  }
+
+  toggleFirmInfo(): void {
+    // Toggle firm info if needed
   }
 }
