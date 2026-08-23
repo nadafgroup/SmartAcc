@@ -3,8 +3,16 @@
   max-width: 100%;
   overflow-x: hidden;
 
+  @media (max-width: 1200px) {
+    padding: 16px;
+  }
+
   @media (max-width: 768px) {
     padding: 12px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 8px;
   }
 }
 

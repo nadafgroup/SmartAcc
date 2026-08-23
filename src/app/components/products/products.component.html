@@ -16,9 +16,9 @@
   <div class="card-modern">
     <div class="card-header">
       <h4>
-        <i class="bi bi-folder2-open"></i>
-        Account Group Master
-        <span class="badge-count">{{ groups.length }} Records</span>
+        <i class="bi bi-box-seam"></i>
+        Products Master
+        <span class="badge-count">{{ products.length }} Records</span>
       </h4>
     </div>
 
@@ -59,69 +59,61 @@
       <div *ngIf="showForm" class="form-section">
         <h5>
           <i class="bi" [class.bi-pencil-square]="isEditMode" [class.bi-plus-circle]="!isEditMode"></i>
-          {{ isEditMode ? 'Edit' : 'Add New' }} Account Group
+          {{ isEditMode ? 'Edit' : 'Add New' }} Product
         </h5>
         
-        <form [formGroup]="groupForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
           <div class="row g-3">
             <div class="col-md-3 col-sm-6">
-              <label class="form-label">Group Code <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="GroupCode" 
-                     placeholder="e.g., ASSETS001">
-              <div *ngIf="groupForm.get('GroupCode')?.invalid && groupForm.get('GroupCode')?.touched" 
+              <label class="form-label">Product Code <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="ProductCode" 
+                     placeholder="e.g., PRD001">
+              <div *ngIf="productForm.get('ProductCode')?.invalid && productForm.get('ProductCode')?.touched" 
                    class="text-danger small">
                 <i class="bi bi-exclamation-circle"></i> Required
               </div>
             </div>
 
             <div class="col-md-3 col-sm-6">
-              <label class="form-label">Group Name <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="GroupName" 
-                     placeholder="e.g., Fixed Assets">
-              <div *ngIf="groupForm.get('GroupName')?.invalid && groupForm.get('GroupName')?.touched" 
+              <label class="form-label">Product Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="ProductName" 
+                     placeholder="e.g., Laptop">
+              <div *ngIf="productForm.get('ProductName')?.invalid && productForm.get('ProductName')?.touched" 
                    class="text-danger small">
                 <i class="bi bi-exclamation-circle"></i> Required
               </div>
             </div>
 
             <div class="col-md-3 col-sm-6">
-              <label class="form-label">Parent Group</label>
-              <select class="form-select" formControlName="ParentGroupID">
-                <option [value]="null">None (Top Level)</option>
-                <option *ngFor="let parent of parentGroups" [value]="parent.GroupID">
-                  {{ parent.GroupName }}
-                </option>
+              <label class="form-label">Category <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="Category">
+                <option value="">Select Category</option>
+                <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
               </select>
-            </div>
-
-            <div class="col-md-3 col-sm-6">
-              <label class="form-label">Group Type <span class="text-danger">*</span></label>
-              <select class="form-select" formControlName="GroupType">
-                <option value="">Select Type</option>
-                <option *ngFor="let type of groupTypes" [value]="type">{{ type }}</option>
-              </select>
-              <div *ngIf="groupForm.get('GroupType')?.invalid && groupForm.get('GroupType')?.touched" 
+              <div *ngIf="productForm.get('Category')?.invalid && productForm.get('Category')?.touched" 
                    class="text-danger small">
                 <i class="bi bi-exclamation-circle"></i> Required
               </div>
             </div>
 
             <div class="col-md-3 col-sm-6">
-              <label class="form-label">Nature of Account <span class="text-danger">*</span></label>
-              <select class="form-select" formControlName="NatureOfAccount">
-                <option value="">Select Nature</option>
-                <option *ngFor="let nature of natureOfAccount" [value]="nature">{{ nature }}</option>
-              </select>
-              <div *ngIf="groupForm.get('NatureOfAccount')?.invalid && groupForm.get('NatureOfAccount')?.touched" 
-                   class="text-danger small">
-                <i class="bi bi-exclamation-circle"></i> Required
-              </div>
-            </div>
-
-            <div class="col-md-3 col-sm-6">
-              <label class="form-label">Opening Balance</label>
-              <input type="number" class="form-control" formControlName="OpeningBalance" 
+              <label class="form-label">Price <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" formControlName="Price" 
                      step="0.01" placeholder="0.00">
+              <div *ngIf="productForm.get('Price')?.invalid && productForm.get('Price')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required (min 0)
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Stock Quantity <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" formControlName="StockQuantity" 
+                     step="1" placeholder="0">
+              <div *ngIf="productForm.get('StockQuantity')?.invalid && productForm.get('StockQuantity')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required (min 0)
+              </div>
             </div>
 
             <div class="col-md-3 col-sm-6">
@@ -129,9 +121,9 @@
               <div class="form-switch mt-2">
                 <input class="form-check-input" type="checkbox" formControlName="IsActive" id="isActive">
                 <label class="form-check-label" for="isActive">
-                  <span class="badge" [class.badge-active]="groupForm.get('IsActive')?.value"
-                                       [class.badge-inactive]="!groupForm.get('IsActive')?.value">
-                    {{ groupForm.get('IsActive')?.value ? 'Active' : 'Inactive' }}
+                  <span class="badge" [class.badge-active]="productForm.get('IsActive')?.value"
+                                       [class.badge-inactive]="!productForm.get('IsActive')?.value">
+                    {{ productForm.get('IsActive')?.value ? 'Active' : 'Inactive' }}
                   </span>
                 </label>
               </div>
@@ -143,6 +135,16 @@
                      placeholder="Additional notes...">
             </div>
           </div>
+
+          <div class="form-actions mt-4">
+            <button type="submit" class="btn btn-primary-gradient" [disabled]="productForm.invalid">
+              <i class="bi" [class.bi-pencil-fill]="isEditMode" [class.bi-plus-circle-fill]="!isEditMode"></i>
+              {{ isEditMode ? 'Update' : 'Save' }}
+            </button>
+            <button type="button" class="btn btn-secondary-gradient ms-2" (click)="toggleForm()">
+              <i class="bi bi-x-circle-fill"></i> Cancel
+            </button>
+          </div>
         </form>
       </div>
 
@@ -153,15 +155,15 @@
           <input 
             type="text" 
             class="filter-input" 
-            placeholder="Search by Group Code or Name..." 
+            placeholder="Search by Code, Name or Category..." 
             [(ngModel)]="searchTerm"
             (input)="applyFilter()">
           <button *ngIf="searchTerm" class="filter-clear" (click)="searchTerm=''; applyFilter()">
             <i class="bi bi-x-circle-fill"></i>
           </button>
         </div>
-        <span class="filter-count" *ngIf="filteredGroups.length !== groups.length">
-          Showing {{ filteredGroups.length }} of {{ groups.length }} records
+        <span class="filter-count" *ngIf="filteredProducts.length !== products.length">
+          Showing {{ filteredProducts.length }} of {{ products.length }} records
         </span>
       </div>
 
@@ -169,7 +171,7 @@
       <div class="table-responsive">
         <div *ngIf="loading && !showForm" class="text-center py-5">
           <div class="spinner-modern"></div>
-          <p class="text-muted mt-3">Loading groups...</p>
+          <p class="text-muted mt-3">Loading products...</p>
         </div>
         
         <!-- Desktop Table View -->
@@ -177,57 +179,45 @@
           <thead>
             <tr>
               <th>#</th>
-              <th>Group Code</th>
-              <th>Group Name</th>
-              <th>Parent Group</th>
-              <th>Type</th>
-              <th>Nature</th>
+              <th>Product Code</th>
+              <th>Product Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock Quantity</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let group of filteredGroups; let i = index"
-                [class.selected-row]="selectedRowId === group.GroupID"
-                (click)="selectRow(group.GroupID!)">
+            <tr *ngFor="let product of filteredProducts; let i = index"
+                [class.selected-row]="selectedRowId === product.ProductID"
+                (click)="selectRow(product.ProductID!)">
               <td>{{ i + 1 }}</td>
-              <td><strong>{{ group.GroupCode }}</strong></td>
-              <td>{{ group.GroupName }}</td>
+              <td><strong>{{ product.ProductCode }}</strong></td>
+              <td>{{ product.ProductName }}</td>
+              <td><span class="badge badge-category">{{ product.Category }}</span></td>
+              <td class="text-end fw-bold">{{ product.Price | number:'1.2-2' }}</td>
+              <td class="text-center">{{ product.StockQuantity }}</td>
               <td>
-                <span *ngIf="group.ParentGroupName; else noParent">
-                  {{ group.ParentGroupName }}
-                </span>
-                <ng-template #noParent>
-                  <span class="text-muted">-</span>
-                </ng-template>
-              </td>
-              <td><span class="badge badge-type">{{ group.GroupType }}</span></td>
-              <td>
-                <span class="badge" [class.badge-credit]="group.NatureOfAccount === 'Credit'"
-                                   [class.badge-debit]="group.NatureOfAccount === 'Debit'">
-                  {{ group.NatureOfAccount }}
-                </span>
-              </td>
-              <td>
-                <span class="badge" [class.badge-active]="group.IsActive"
-                                   [class.badge-inactive]="!group.IsActive">
-                  <span class="status-dot" [class.active]="group.IsActive" [class.inactive]="!group.IsActive"></span>
-                  {{ group.IsActive ? 'Active' : 'Inactive' }}
+                <span class="badge" [class.badge-active]="product.IsActive"
+                                   [class.badge-inactive]="!product.IsActive">
+                  <span class="status-dot" [class.active]="product.IsActive" [class.inactive]="!product.IsActive"></span>
+                  {{ product.IsActive ? 'Active' : 'Inactive' }}
                 </span>
               </td>
               <td (click)="$event.stopPropagation()">
-                <button class="btn-action btn-edit" (click)="editGroup(group)" title="Edit">
+                <button class="btn-action btn-edit" (click)="editProduct(product)" title="Edit">
                   <i class="bi bi-pencil-fill"></i>
                 </button>
-                <button class="btn-action btn-delete" (click)="deleteGroup(group.GroupID!)" title="Delete">
+                <button class="btn-action btn-delete" (click)="deleteProduct(product.ProductID!)" title="Delete">
                   <i class="bi bi-trash-fill"></i>
                 </button>
               </td>
             </tr>
-            <tr *ngIf="groups.length === 0">
+            <tr *ngIf="products.length === 0">
               <td colspan="8" class="text-center py-5">
                 <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
-                <p class="text-muted mt-2">No groups found. Click "Add New Group" to create one.</p>
+                <p class="text-muted mt-2">No products found. Click "Add" to create one.</p>
               </td>
             </tr>
           </tbody>
@@ -235,54 +225,49 @@
 
         <!-- Mobile Card View -->
         <div class="mobile-cards" *ngIf="!loading">
-          <div *ngIf="filteredGroups.length === 0" class="text-center py-5">
+          <div *ngIf="filteredProducts.length === 0" class="text-center py-5">
             <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
-            <p class="text-muted mt-2">No groups found.</p>
+            <p class="text-muted mt-2">No products found.</p>
           </div>
-          <div class="group-card" *ngFor="let group of filteredGroups; let i = index"
-               [class.selected-card]="selectedRowId === group.GroupID"
-               (click)="selectRow(group.GroupID!)">
+          <div class="product-card" *ngFor="let product of filteredProducts; let i = index"
+               [class.selected-card]="selectedRowId === product.ProductID"
+               (click)="selectRow(product.ProductID!)">
             <div class="card-header-row">
               <span class="card-index">#{{ i + 1 }}</span>
-              <span class="card-code"><strong>{{ group.GroupCode }}</strong></span>
+              <span class="card-code"><strong>{{ product.ProductCode }}</strong></span>
               <div class="card-actions" (click)="$event.stopPropagation()">
-                <button class="btn-action btn-edit" (click)="editGroup(group)" title="Edit">
+                <button class="btn-action btn-edit" (click)="editProduct(product)" title="Edit">
                   <i class="bi bi-pencil-fill"></i>
                 </button>
-                <button class="btn-action btn-delete" (click)="deleteGroup(group.GroupID!)" title="Delete">
+                <button class="btn-action btn-delete" (click)="deleteProduct(product.ProductID!)" title="Delete">
                   <i class="bi bi-trash-fill"></i>
                 </button>
               </div>
             </div>
             <div class="card-body-row">
               <div class="card-field">
-                <span class="field-label">Group Name</span>
-                <span class="field-value">{{ group.GroupName }}</span>
+                <span class="field-label">Product Name</span>
+                <span class="field-value">{{ product.ProductName }}</span>
               </div>
               <div class="card-field">
-                <span class="field-label">Parent Group</span>
-                <span class="field-value">{{ group.ParentGroupName || '-' }}</span>
+                <span class="field-label">Category</span>
+                <span class="field-value"><span class="badge badge-category">{{ product.Category }}</span></span>
               </div>
               <div class="card-field">
-                <span class="field-label">Type</span>
-                <span class="field-value"><span class="badge badge-type">{{ group.GroupType }}</span></span>
+                <span class="field-label">Price</span>
+                <span class="field-value fw-bold">{{ product.Price | number:'1.2-2' }}</span>
               </div>
               <div class="card-field">
-                <span class="field-label">Nature</span>
-                <span class="field-value">
-                  <span class="badge" [class.badge-credit]="group.NatureOfAccount === 'Credit'"
-                                     [class.badge-debit]="group.NatureOfAccount === 'Debit'">
-                    {{ group.NatureOfAccount }}
-                  </span>
-                </span>
+                <span class="field-label">Stock Quantity</span>
+                <span class="field-value">{{ product.StockQuantity }}</span>
               </div>
               <div class="card-field">
                 <span class="field-label">Status</span>
                 <span class="field-value">
-                  <span class="badge" [class.badge-active]="group.IsActive"
-                                     [class.badge-inactive]="!group.IsActive">
-                    <span class="status-dot" [class.active]="group.IsActive" [class.inactive]="!group.IsActive"></span>
-                    {{ group.IsActive ? 'Active' : 'Inactive' }}
+                  <span class="badge" [class.badge-active]="product.IsActive"
+                                     [class.badge-inactive]="!product.IsActive">
+                    <span class="status-dot" [class.active]="product.IsActive" [class.inactive]="!product.IsActive"></span>
+                    {{ product.IsActive ? 'Active' : 'Inactive' }}
                   </span>
                 </span>
               </div>

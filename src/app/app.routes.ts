@@ -44,6 +44,13 @@ export const routes: Routes = [
             (s) => s.UsersComponent
           ),
       },
+      {
+        path: 'products',
+        loadComponent: () =>
+          import('./components/products/products.component').then(
+            (s) => s.ProductsComponent
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: '/login' }

@@ -37,7 +37,8 @@ export const SIDEBAR_MENUS: { [key: string]: SidebarMenuItem[] } = {
     { id: 'firm-type', label: 'Firm Type', icon: 'bi-building', route: '/firm-type' },
     { id: 'create-counter', label: 'Create Counter', icon: 'bi-plus-circle', route: '/create-counter' },
     { id: 'account-groups', label: 'Account Groups', icon: 'bi-folder2-open', route: '/groups' },
-    { id: 'account-info', label: 'Account Info', icon: 'bi-people', route: '/accounts' }
+    { id: 'account-info', label: 'Account Info', icon: 'bi-people', route: '/accounts' },
+    { id: 'products', label: 'Products', icon: 'bi-box-seam', route: '/products' }
   ],
 
   // Finance Menu

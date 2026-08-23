@@ -6,11 +6,49 @@
   width: 260px;
   background: #1a1a2e;
   color: #fff;
-  z-index: 1000;
+  z-index: 1001;
   display: flex;
   flex-direction: column;
   border-right: 1px solid rgba(255, 255, 255, 0.04);
   overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  @media (max-width: 768px) {
+    top: 50px;
+    height: calc(100vh - 50px);
+    width: 280px;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
+    z-index: 1002;
+    
+    &.open {
+      transform: translateX(0);
+    }
+  }
+
+  // Overlay for mobile
+  .sidebar-overlay {
+    display: none;
+    
+    @media (max-width: 768px) {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      
+      &.visible {
+        opacity: 1;
+        pointer-events: auto;
+      }
+    }
+  }
 
   // Firm Info
   .sidebar-header {
@@ -178,20 +216,6 @@
         font-weight: 600;
         color: rgba(255, 255, 255, 0.3);
       }
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .sidebar {
-    top: 50px;
-    height: calc(100vh - 50px);
-    transform: translateX(-100%);
-    width: 280px;
-    transition: transform 0.3s ease;
-    
-    &.open {
-      transform: translateX(0);
     }
   }
 }

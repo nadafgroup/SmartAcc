@@ -23,6 +23,7 @@ interface SidebarGroup {
 })
 export class SidebarComponent implements OnChanges {
   @Input() activeMenu: string = 'master';
+  @Input() isOpen: boolean = false;
 
   // Firm info
   firmPlace: string = 'KAGWAD';
@@ -45,7 +46,8 @@ export class SidebarComponent implements OnChanges {
             { id: 'financial-year', label: 'Financial Year', icon: 'bi-calendar3', route: '/financial-year' },
             { id: 'balance-forward', label: 'Balance Forward', icon: 'bi-arrow-left-right', route: '/balance-forward' },
             { id: 'account-groups', label: 'Account Groups', icon: 'bi-folder2-open', route: '/groups' },
-            { id: 'account-info', label: 'Account Info', icon: 'bi-people', route: '/accounts' }
+            { id: 'account-info', label: 'Account Info', icon: 'bi-people', route: '/accounts' },
+            { id: 'products', label: 'Products', icon: 'bi-box-seam', route: '/products' }
           ]
         }
       ]
@@ -144,5 +146,9 @@ export class SidebarComponent implements OnChanges {
 
   toggleFirmInfo(): void {
     // Toggle firm info if needed
+  }
+
+  closeSidebar(): void {
+    this.isOpen = false;
   }
 }

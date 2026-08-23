@@ -661,8 +661,79 @@
             border-radius: 50px;
             font-size: 0.65rem;
             text-transform: uppercase;
+
+            &.badge-type {
+              background: #63b3ed;
+              color: white;
+            }
+
+            &.badge-active {
+              background: #48bb78;
+              color: white;
+            }
+
+            &.badge-inactive {
+              background: #a0aec0;
+              color: white;
+            }
+
+            &.badge-danger {
+              background: #fc8181;
+              color: white;
+            }
+          }
+
+          .status-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 4px;
+
+            &.active {
+              background: #48bb78;
+            }
+
+            &.inactive {
+              background: #a0aec0;
+            }
           }
         }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-cards .user-card {
+    padding: 12px;
+
+    .card-body-row {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+
+    .card-header-row {
+      .card-code {
+        font-size: 0.8rem;
+      }
+
+      .card-actions .btn-action {
+        padding: 3px 8px;
+        font-size: 0.65rem;
+
+        i {
+          font-size: 0.75rem;
+        }
+      }
+    }
+
+    .card-body-row .card-field {
+      .field-label {
+        font-size: 0.55rem;
+      }
+      .field-value {
+        font-size: 0.75rem;
       }
     }
   }

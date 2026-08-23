@@ -13,9 +13,19 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 })
 export class LayoutComponent {
   activeMenu: string = 'master';
+  sidebarOpen: boolean = false;
 
   onMenuSelected(menuId: string): void {
     this.activeMenu = menuId;
     console.log('Menu selected:', menuId);
+  }
+
+  onToggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+    console.log('Sidebar toggled:', this.sidebarOpen);
+  }
+
+  onSidebarClose(): void {
+    this.sidebarOpen = false;
   }
 }

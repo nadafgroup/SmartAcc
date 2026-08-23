@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -17,6 +17,8 @@ interface NavItem {
 })
 export class NavbarComponent {
   @Output() menuSelected = new EventEmitter<string>();
+  @Output() toggleSidebar = new EventEmitter<void>();
+  @Input() sidebarOpen: boolean = false;
 
   activeMenu: string = 'master';
   currentDate: Date = new Date();
@@ -48,6 +50,11 @@ export class NavbarComponent {
   selectMenu(menuId: string): void {
     this.activeMenu = menuId;
     this.menuSelected.emit(menuId);
+  }
+
+  onToggleSidebar(): void {
+    console.log('Navbar toggle button clicked');
+    this.toggleSidebar.emit();
   }
 
   logout(): void {

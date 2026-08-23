@@ -1,8 +1,16 @@
 <div class="layout-container">
-  <app-navbar (menuSelected)="onMenuSelected($event)"></app-navbar>
+  <app-navbar 
+    (menuSelected)="onMenuSelected($event)"
+    (toggleSidebar)="onToggleSidebar()"
+    [sidebarOpen]="sidebarOpen">
+  </app-navbar>
   
   <div class="layout-body">
-    <app-sidebar [activeMenu]="activeMenu"></app-sidebar>
+    <app-sidebar 
+      [activeMenu]="activeMenu" 
+      [isOpen]="sidebarOpen"
+      (closeSidebar)="onSidebarClose()">
+    </app-sidebar>
     
     <div class="main-content">
       <div class="content-wrapper">

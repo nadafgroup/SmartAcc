@@ -3,6 +3,11 @@
 .page-container {
   max-width: 100%;
   overflow-x: hidden;
+  padding: 0 4px;
+
+  @media (max-width: 480px) {
+    padding: 0 2px;
+  }
 }
 
 .card-modern {

@@ -17,12 +17,14 @@ const accountRoutes = require('./routes/accountInfoRoutes');
 const authRoutes = require('./routes/authRoutes');
 const firmRoutes = require('./routes/firmRoutes');
 const userRoutes = require('./routes/userRoutes');
+const productRoutes = require('./routes/productRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/firms', firmRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/products', productRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
