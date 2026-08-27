@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AccountGroupService, AccountGroup } from '../../services/account-group.service';
 
 @Component({
@@ -32,7 +33,8 @@ export class AccountGroupComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private groupService: AccountGroupService
+    private groupService: AccountGroupService,
+    private router: Router
   ) {
     this.groupForm = this.fb.group({
       GroupCode: ['', [Validators.required, Validators.maxLength(50)]],
@@ -426,8 +428,10 @@ export class AccountGroupComponent implements OnInit {
   }
 
   onClose(): void {
-    // Navigate back or close the current view
-    this.error = 'Close functionality - returning to previous view';
-    setTimeout(() => this.error = '', 3000);
+    this.resetForm();
+    this.showForm = false;
+    this.selectedRowId = null;
+    this.isFormFilled = false;
+    this.router.navigate(['/dashboard']);
   }
 }

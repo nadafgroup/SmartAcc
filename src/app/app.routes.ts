@@ -51,6 +51,20 @@ export const routes: Routes = [
             (s) => s.ProductsComponent
           ),
       },
+      {
+        path: 'primary-groups',
+        loadComponent: () =>
+          import('./components/primary-group/primary-group.component').then(
+            (s) => s.PrimaryGroupComponent
+          ),
+      },
+      {
+        path: 'opening-balance',
+        loadComponent: () =>
+          import('./components/opening-balance').then(
+            (s) => s.OpeningBalanceComponent
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: '/login' }

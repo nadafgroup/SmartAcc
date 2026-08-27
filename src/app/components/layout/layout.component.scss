@@ -1,31 +1,32 @@
 .layout-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: #f0f2f5;
 }
 
 .layout-body {
   display: flex;
   flex: 1;
-  min-height: calc(100vh - 56px);
+  height: calc(100vh - 56px);
+  overflow: hidden;
 
   @media (max-width: 768px) {
-    min-height: calc(100vh - 50px);
+    height: calc(100vh - 50px);
   }
 }
 
 .main-content {
   flex: 1;
   margin-left: 260px;
-  min-height: calc(100vh - 56px);
+  height: 100%;
+  overflow-y: auto;
   background: #f0f2f5;
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow-x: hidden;
 
   @media (max-width: 768px) {
     margin-left: 0;
-    min-height: calc(100vh - 50px);
   }
 }
 

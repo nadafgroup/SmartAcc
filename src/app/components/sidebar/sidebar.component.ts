@@ -39,14 +39,17 @@ export class SidebarComponent implements OnChanges {
       title: 'Master',
       groups: [
         {
-          title: 'Master',
+          title: 'Account',
           items: [
-            { id: 'firm', label: 'Firm', icon: 'bi-building', route: '/firms' },
-            { id: 'branches', label: 'Branches', icon: 'bi-diagram-3', route: '/branches' },
-            { id: 'financial-year', label: 'Financial Year', icon: 'bi-calendar3', route: '/financial-year' },
-            { id: 'balance-forward', label: 'Balance Forward', icon: 'bi-arrow-left-right', route: '/balance-forward' },
-            { id: 'account-groups', label: 'Account Groups', icon: 'bi-folder2-open', route: '/groups' },
             { id: 'account-info', label: 'Account Info', icon: 'bi-people', route: '/accounts' },
+            { id: 'account-groups', label: 'Group', icon: 'bi-folder2-open', route: '/groups' },
+            { id: 'primary-group', label: 'Primary Group', icon: 'bi-folder', route: '/primary-groups' },
+            { id: 'opening-balance', label: 'Opening Balance', icon: 'bi-wallet2', route: '/opening-balance' }
+          ]
+        },
+        {
+          title: 'Product',
+          items: [
             { id: 'products', label: 'Products', icon: 'bi-box-seam', route: '/products' }
           ]
         }
@@ -104,9 +107,7 @@ export class SidebarComponent implements OnChanges {
             { id: 'firm', label: 'Firm', icon: 'bi-building', route: '/firms' },
             { id: 'branches', label: 'Branches', icon: 'bi-diagram-3', route: '/branches' },
             { id: 'financial-year', label: 'Financial Year', icon: 'bi-calendar3', route: '/financial-year' },
-            { id: 'balance-forward', label: 'Balance Forward', icon: 'bi-arrow-left-right', route: '/balance-forward' },
-            { id: 'account-groups', label: 'Account Groups', icon: 'bi-folder2-open', route: '/groups' },
-            { id: 'account-info', label: 'Account Info', icon: 'bi-people', route: '/accounts' }
+            { id: 'balance-forward', label: 'Balance Forward', icon: 'bi-arrow-left-right', route: '/balance-forward' }
           ]
         },
         {

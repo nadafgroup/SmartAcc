@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { FirmService, Firm } from '../../services/firm.service';
 
 @Component({
@@ -30,7 +31,8 @@ export class FirmComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private firmService: FirmService
+    private firmService: FirmService,
+    private router: Router
   ) {
     this.firmForm = this.fb.group({
       Code: ['', [Validators.required, Validators.maxLength(50)]],
@@ -439,7 +441,10 @@ export class FirmComponent implements OnInit {
   }
 
   onClose(): void {
-    this.error = 'Close functionality - returning to previous view';
-    setTimeout(() => this.error = '', 3000);
+    this.resetForm();
+    this.showForm = false;
+    this.selectedRowId = null;
+    this.isFormFilled = false;
+    this.router.navigate(['/dashboard']);
   }
 }

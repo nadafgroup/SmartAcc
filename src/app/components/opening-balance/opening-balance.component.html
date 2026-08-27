@@ -1,0 +1,201 @@
+<div class="page-container">
+  <!-- Messages -->
+  <div *ngIf="error" class="alert alert-modern alert-danger alert-dismissible fade show">
+    <i class="bi bi-exclamation-circle-fill"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error=''"></button>
+  </div>
+  
+  <div *ngIf="success" class="alert alert-modern alert-success alert-dismissible fade show">
+    <i class="bi bi-check-circle-fill"></i>
+    {{ success }}
+    <button type="button" class="btn-close" (click)="success=''"></button>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card-modern">
+    <div class="card-header">
+      <h4>
+        <i class="bi bi-wallet2"></i>
+        Opening Balance Management
+        <span class="badge-count">{{ records.length }} Records</span>
+      </h4>
+    </div>
+
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+      <button class="btn-action-toolbar btn-add" (click)="toggleForm()" [disabled]="showForm" title="Add New Record">
+        <i class="bi bi-plus-circle-fill"></i> Add
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-edit" (click)="onEdit()" [disabled]="!selectedRowId || showForm" title="Edit Selected Record">
+        <i class="bi bi-pencil-fill"></i> Edit
+      </button>
+      <button class="btn-action-toolbar btn-delete" (click)="deleteSelected()" [disabled]="!selectedRowId || showForm" title="Delete Selected Record">
+        <i class="bi bi-trash-fill"></i> Delete
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-post" (click)="postSelected()" [disabled]="!selectedRowId || showForm" title="Post Selected Record">
+        <i class="bi bi-check2-square"></i> Post
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-print" (click)="onPrint()" [disabled]="showForm" title="Print Record">
+        <i class="bi bi-printer-fill"></i> Print
+      </button>
+      <button class="btn-action-toolbar btn-close" (click)="onClose()" [disabled]="showForm" title="Close">
+        <i class="bi bi-x-circle-fill"></i> Close
+      </button>
+    </div>
+
+    <div class="card-body">
+      <!-- Form Section -->
+      <div *ngIf="showForm" class="form-section">
+        <h5>
+          <i class="bi" [class.bi-pencil-square]="isEditMode" [class.bi-plus-circle]="!isEditMode"></i>
+          {{ isEditMode ? 'Edit' : 'Add New' }} Opening Balance
+        </h5>
+        
+        <form [formGroup]="openingBalanceForm" (ngSubmit)="onSubmit()">
+          <div class="row g-3">
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">Account <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="AccountID" [class.is-invalid]="openingBalanceForm.get('AccountID')?.invalid && openingBalanceForm.get('AccountID')?.touched">
+                <option value="">Select Account</option>
+                <option *ngFor="let acc of accounts" [value]="acc.AccountID">
+                  {{ acc.AccountCode }} - {{ acc.AccountName }}
+                </option>
+              </select>
+              <div class="invalid-feedback">Account is required</div>
+            </div>
+
+            <div class="col-md-2 col-sm-6">
+              <label class="form-label">Balance Type <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="BalanceType" [class.is-invalid]="openingBalanceForm.get('BalanceType')?.invalid && openingBalanceForm.get('BalanceType')?.touched">
+                <option value="Dr">Dr</option>
+                <option value="Cr">Cr</option>
+              </select>
+              <div class="invalid-feedback">Balance type is required</div>
+            </div>
+
+            <div class="col-md-2 col-sm-6">
+              <label class="form-label">Amount <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" formControlName="OpeningBalance" 
+                     [class.is-invalid]="openingBalanceForm.get('OpeningBalance')?.invalid && openingBalanceForm.get('OpeningBalance')?.touched"
+                     placeholder="0.00" step="0.01">
+              <div class="invalid-feedback">Amount is required and must be >= 0</div>
+              <small class="text-muted" *ngIf="existingBalance !== null">
+                Current Balance: {{ existingBalance | number:'1.2-2' }} {{ existingBalanceType }}
+              </small>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Financial Year <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="FinancialYear" 
+                     [class.is-invalid]="openingBalanceForm.get('FinancialYear')?.invalid && openingBalanceForm.get('FinancialYear')?.touched"
+                     placeholder="2024-2025">
+              <div class="invalid-feedback">Financial year is required</div>
+            </div>
+
+            <div class="col-md-1 d-flex align-items-end">
+              <div class="btn-group w-100">
+                <button type="submit" class="btn btn-action-toolbar btn-save w-100" [disabled]="openingBalanceForm.invalid">
+                  <i class="bi bi-check-lg"></i> Save
+                </button>
+                <button type="button" class="btn btn-action-toolbar btn-cancel" (click)="toggleForm()">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar" *ngIf="!showForm">
+        <div class="filter-input-group">
+          <i class="bi bi-search"></i>
+          <input 
+            type="text" 
+            class="filter-input" 
+            placeholder="Search by Account Code, Name, or Financial Year..." 
+            [(ngModel)]="searchTerm"
+            (input)="applyFilter($event)">
+          <button *ngIf="searchTerm" class="filter-clear" (click)="searchTerm=''; applyFilter()">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        </div>
+        <span class="filter-count" *ngIf="filteredRecords.length !== records.length">
+          Showing {{ filteredRecords.length }} of {{ records.length }} records
+        </span>
+        <div class="filter-stats">
+          <span class="badge badge-total">Total: {{ records.length }}</span>
+          <span class="badge badge-posted">Posted: {{ postedCount }}</span>
+          <span class="badge badge-pending">Pending: {{ pendingCount }}</span>
+        </div>
+      </div>
+
+      <!-- Table Section -->
+      <div class="table-responsive">
+        <div *ngIf="loading && !showForm" class="text-center py-5">
+          <div class="spinner-modern"></div>
+          <p class="text-muted mt-3">Loading opening balance records...</p>
+        </div>
+        
+        <!-- Desktop Table View -->
+        <table class="table-modern desktop-view" *ngIf="!loading">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Account Code</th>
+              <th>Account Name</th>
+              <th>Group</th>
+              <th style="text-align: right;">Amount</th>
+              <th>Type</th>
+              <th style="text-align: center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="filteredRecords.length === 0">
+              <td colspan="7" class="text-center text-muted py-4">
+                <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                No opening balance records found
+              </td>
+            </tr>
+            <tr *ngFor="let record of filteredRecords; let i = index"
+                [class.selected-row]="selectedRowId === record.OpeningBalanceID"
+                (click)="selectRow(record.OpeningBalanceID!)">
+              <td>{{ i + 1 }}</td>
+              <td><strong>{{ record.AccountCode }}</strong></td>
+              <td>{{ record.AccountName }}</td>
+              <td>{{ record.GroupName || 'N/A' }}</td>
+              <td style="text-align: right; font-weight: 500;">
+                {{ record.OpeningBalance | number:'1.2-2' }}
+              </td>
+              <td>
+                <span class="badge" [class.badge-dr]="record.BalanceType === 'Dr'" [class.badge-cr]="record.BalanceType === 'Cr'">
+                  {{ record.BalanceType }}
+                </span>
+              </td>
+              <td style="text-align: center;">
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-primary" (click)="editRecord(record)" 
+                          [disabled]="record.IsPosted" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-outline-danger" (click)="deleteRecord(record.OpeningBalanceID!)" 
+                          [disabled]="record.IsPosted" title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                  <button class="btn btn-outline-success" (click)="postRecord(record.OpeningBalanceID!)" 
+                          [disabled]="record.IsPosted" title="Post">
+                    <i class="bi bi-check2-square"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
