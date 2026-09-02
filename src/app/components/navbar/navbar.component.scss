@@ -108,7 +108,16 @@
         gap: 4px;
 
         @media (max-width: 768px) {
-          display: none;
+          display: flex;
+          gap: 2px;
+          overflow-x: auto;
+          max-width: 160px;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+          
+          &::-webkit-scrollbar {
+            display: none;
+          }
         }
 
         .nav-item {

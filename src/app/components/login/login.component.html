@@ -1,8 +1,12 @@
 <div class="login-container">
   <div class="login-box">
-    <h1>Login to Access!</h1>
+    <div class="login-header">
+      <div class="login-icon">🔐</div>
+      <h1>Welcome Back</h1>
+      <p class="login-subtitle">Sign in to continue to your dashboard</p>
+    </div>
     
-    <form >
+    <form>
       <div class="form-group">
         <input 
           type="text" 
@@ -23,8 +27,9 @@
           required>
       </div>
 
-      <button  class="btn-login" [disabled]="loading" (click)="onSubmit()">
-        {{ loading ? 'Loading...' : 'Login' }}
+      <button class="btn-login" [disabled]="loading" (click)="onSubmit()">
+        <span *ngIf="!loading">Sign In</span>
+        <span *ngIf="loading" class="spinner"></span>
       </button>
 
       <div *ngIf="error" class="alert alert-danger">
@@ -32,7 +37,7 @@
       </div>
 
       <div class="demo-credentials">
-        <p>Demo: <strong>admin</strong> / <strong>admin123</strong></p>
+        <p>📋 Demo credentials: <strong>admin</strong> / <strong>admin123</strong></p>
       </div>
     </form>
 

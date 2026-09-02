@@ -50,6 +50,8 @@ export class NavbarComponent {
   selectMenu(menuId: string): void {
     this.activeMenu = menuId;
     this.menuSelected.emit(menuId);
+    // Open sidebar when a menu is selected on mobile
+    this.toggleSidebar.emit();
   }
 
   onToggleSidebar(): void {

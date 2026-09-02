@@ -35,6 +35,10 @@ export class FirmService {
 
   constructor(private http: HttpClient) { }
 
+  getAll(): Observable<any> {
+    return this.http.get<any>(this.apiUrl);
+  }
+
   getFirms(): Observable<any> {
     return this.http.get<any>(this.apiUrl);
   }

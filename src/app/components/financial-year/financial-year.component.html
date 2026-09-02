@@ -1,0 +1,307 @@
+<div class="page-container">
+  <!-- Messages -->
+  <div *ngIf="error" class="alert alert-modern alert-danger alert-dismissible fade show">
+    <i class="bi bi-exclamation-circle-fill"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error=''"></button>
+  </div>
+  
+  <div *ngIf="success" class="alert alert-modern alert-success alert-dismissible fade show">
+    <i class="bi bi-check-circle-fill"></i>
+    {{ success }}
+    <button type="button" class="btn-close" (click)="success=''"></button>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card-modern">
+    <div class="card-header">
+      <h4>
+        <i class="bi bi-calendar3"></i>
+        Financial Year Master
+        <span class="badge-count">{{ financialYears.length }} Records</span>
+      </h4>
+    </div>
+
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+      <button class="btn-action-toolbar btn-add" (click)="toggleForm()" [disabled]="showForm" title="Add New Record">
+        <i class="bi bi-plus-circle-fill"></i> Add
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-edit" (click)="onEdit()" [disabled]="!selectedRowId || showForm" title="Edit Selected Record">
+        <i class="bi bi-pencil-fill"></i> Edit
+      </button>
+      <button class="btn-action-toolbar btn-delete" (click)="deleteSelected()" [disabled]="!selectedRowId || showForm" title="Delete Selected Record">
+        <i class="bi bi-trash-fill"></i> Delete
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-print" (click)="onPrint()" [disabled]="showForm" title="Print Record">
+        <i class="bi bi-printer-fill"></i> Print
+      </button>
+      <button class="btn-action-toolbar btn-attach" (click)="onAttach()" [disabled]="showForm" title="Attach File">
+        <i class="bi bi-paperclip"></i> Attach
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-confirm" (click)="onConfirm()" [disabled]="!selectedRowId || !showForm" title="Confirm Record">
+        <i class="bi bi-check-circle-fill"></i> Confirm
+      </button>
+      <button class="btn-action-toolbar btn-undo" (click)="onUndo()" [disabled]="!showForm" title="Undo Last Action">
+        <i class="bi bi-arrow-counterclockwise"></i> Undo
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-close-page" (click)="onClose()" [disabled]="showForm" title="Close">
+        <i class="bi bi-x-circle-fill"></i> Close
+      </button>
+    </div>
+
+    <div class="card-body">
+      <!-- Form Section -->
+      <div *ngIf="showForm" class="form-section">
+        <h5>
+          <i class="bi" [class.bi-pencil-square]="isEditMode" [class.bi-plus-circle]="!isEditMode"></i>
+          {{ isEditMode ? 'Edit' : 'Add New' }} Financial Year
+        </h5>
+        
+        <form [formGroup]="financialYearForm" (ngSubmit)="onSubmit()">
+          <div class="row g-3">
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">Firm <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="FirmID">
+                <option value="">Select Firm</option>
+                <option *ngFor="let firm of firms" [value]="firm.FirmID">{{ firm.TradeName }}</option>
+              </select>
+              <div *ngIf="financialYearForm.get('FirmID')?.invalid && financialYearForm.get('FirmID')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">Year Code <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="YearCode" 
+                     placeholder="e.g., 2025-26">
+              <div *ngIf="financialYearForm.get('YearCode')?.invalid && financialYearForm.get('YearCode')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">Year Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="YearName" 
+                     placeholder="e.g., Financial Year 2025-26">
+              <div *ngIf="financialYearForm.get('YearName')?.invalid && financialYearForm.get('YearName')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Start Date <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" formControlName="StartDate">
+              <div *ngIf="financialYearForm.get('StartDate')?.invalid && financialYearForm.get('StartDate')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">End Date <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" formControlName="EndDate">
+              <div *ngIf="financialYearForm.get('EndDate')?.invalid && financialYearForm.get('EndDate')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Current Year</label>
+              <div class="form-switch mt-2">
+                <input class="form-check-input" type="checkbox" formControlName="IsCurrent" id="isCurrent">
+                <label class="form-check-label" for="isCurrent">
+                  <span class="badge" [class.badge-active]="financialYearForm.get('IsCurrent')?.value"
+                                       [class.badge-inactive]="!financialYearForm.get('IsCurrent')?.value">
+                    {{ financialYearForm.get('IsCurrent')?.value ? 'Current' : 'Not Current' }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Status</label>
+              <div class="form-switch mt-2">
+                <input class="form-check-input" type="checkbox" formControlName="IsActive" id="isActive">
+                <label class="form-check-label" for="isActive">
+                  <span class="badge" [class.badge-active]="financialYearForm.get('IsActive')?.value"
+                                       [class.badge-inactive]="!financialYearForm.get('IsActive')?.value">
+                    {{ financialYearForm.get('IsActive')?.value ? 'Active' : 'Inactive' }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="col-md-12 col-sm-12">
+              <label class="form-label">Remarks</label>
+              <input type="text" class="form-control" formControlName="Remarks" 
+                     placeholder="Additional notes...">
+            </div>
+          </div>
+          
+          <div class="form-actions mt-4">
+            <button type="submit" class="btn btn-primary" [disabled]="loading">
+              <i class="bi" [class.bi-save]="!loading" [class.bi-hourglass-split]="loading"></i>
+              {{ loading ? 'Saving...' : (isEditMode ? 'Update' : 'Save') }}
+            </button>
+            <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">
+              <i class="bi bi-x-circle"></i> Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar" *ngIf="!showForm">
+        <div class="filter-input-group">
+          <i class="bi bi-search"></i>
+          <input 
+            type="text" 
+            class="filter-input" 
+            placeholder="Search by Year Code, Name or Firm..." 
+            [(ngModel)]="searchTerm"
+            (input)="applyFilter()">
+          <button *ngIf="searchTerm" class="filter-clear" (click)="searchTerm=''; applyFilter()">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        </div>
+        <span class="filter-count" *ngIf="filteredFinancialYears.length !== financialYears.length">
+          Showing {{ filteredFinancialYears.length }} of {{ financialYears.length }} records
+        </span>
+      </div>
+
+      <!-- Table Section -->
+      <div class="table-responsive">
+        <div *ngIf="loading && !showForm" class="text-center py-5">
+          <div class="spinner-modern"></div>
+          <p class="text-muted mt-3">Loading financial years...</p>
+        </div>
+        
+        <!-- Desktop Table View -->
+        <table class="table-modern desktop-view" *ngIf="!loading">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Year Code</th>
+              <th>Year Name</th>
+              <th>Firm</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Current</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let fy of filteredFinancialYears; let i = index"
+                [class.selected-row]="selectedRowId === fy.FinancialYearID"
+                (click)="selectRow(fy.FinancialYearID!)">
+              <td>{{ i + 1 }}</td>
+              <td><strong>{{ fy.YearCode }}</strong></td>
+              <td>{{ fy.YearName }}</td>
+              <td>{{ fy.FirmName }}</td>
+              <td>{{ fy.StartDate | date:'dd/MM/yyyy' }}</td>
+              <td>{{ fy.EndDate | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <span class="badge" [class.badge-current]="fy.IsCurrent"
+                                   [class.badge-inactive]="!fy.IsCurrent">
+                  {{ fy.IsCurrent ? 'Current' : '-' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [class.badge-active]="fy.IsActive"
+                                   [class.badge-inactive]="!fy.IsActive">
+                  <span class="status-dot" [class.active]="fy.IsActive" [class.inactive]="!fy.IsActive"></span>
+                  {{ fy.IsActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editFinancialYear(fy)" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteFinancialYear(fy.FinancialYearID!)" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredFinancialYears.length === 0">
+              <td colspan="9" class="text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+                <p class="text-muted mt-2">No financial years found. Click "Add" to create one.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Mobile Card View -->
+        <div class="mobile-cards" *ngIf="!loading">
+          <div *ngIf="filteredFinancialYears.length === 0" class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+            <p class="text-muted mt-2">No financial years found.</p>
+          </div>
+          <div class="group-card" *ngFor="let fy of filteredFinancialYears; let i = index"
+               [class.selected-card]="selectedRowId === fy.FinancialYearID"
+               (click)="selectRow(fy.FinancialYearID!)">
+            <div class="card-header-row">
+              <span class="card-index">#{{ i + 1 }}</span>
+              <span class="card-code"><strong>{{ fy.YearCode }}</strong></span>
+              <div class="card-actions" (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editFinancialYear(fy)" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteFinancialYear(fy.FinancialYearID!)" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body-row">
+              <div class="card-field">
+                <span class="field-label">Year Name</span>
+                <span class="field-value">{{ fy.YearName }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Firm</span>
+                <span class="field-value">{{ fy.FirmName || '-' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Start Date</span>
+                <span class="field-value">{{ fy.StartDate | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">End Date</span>
+                <span class="field-value">{{ fy.EndDate | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Current</span>
+                <span class="field-value">
+                  <span class="badge" [class.badge-current]="fy.IsCurrent"
+                                     [class.badge-inactive]="!fy.IsCurrent">
+                    {{ fy.IsCurrent ? 'Current' : '-' }}
+                  </span>
+                </span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Status</span>
+                <span class="field-value">
+                  <span class="badge" [class.badge-active]="fy.IsActive"
+                                     [class.badge-inactive]="!fy.IsActive">
+                    <span class="status-dot" [class.active]="fy.IsActive" [class.inactive]="!fy.IsActive"></span>
+                    {{ fy.IsActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

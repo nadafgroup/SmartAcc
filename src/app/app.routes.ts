@@ -65,6 +65,41 @@ export const routes: Routes = [
             (s) => s.OpeningBalanceComponent
           ),
       },
+      {
+        path: 'branches',
+        loadComponent: () =>
+          import('./components/branches/branches.component').then(
+            (s) => s.BranchesComponent
+          ),
+      },
+      {
+        path: 'financial-year',
+        loadComponent: () =>
+          import('./components/financial-year/financial-year.component').then(
+            (s) => s.FinancialYearComponent
+          ),
+      },
+      {
+        path: 'districts',
+        loadComponent: () =>
+          import('./components/district/district.component').then(
+            (s) => s.DistrictComponent
+          ),
+      },
+      {
+        path: 'talukas',
+        loadComponent: () =>
+          import('./components/taluka/taluka.component').then(
+            (s) => s.TalukaComponent
+          ),
+      },
+      {
+        path: 'places',
+        loadComponent: () =>
+          import('./components/place/place.component').then(
+            (s) => s.PlaceComponent
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: '/login' }

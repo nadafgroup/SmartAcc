@@ -1,0 +1,272 @@
+<div class="page-container">
+  <!-- Messages -->
+  <div *ngIf="error" class="alert alert-modern alert-danger alert-dismissible fade show">
+    <i class="bi bi-exclamation-circle-fill"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error=''"></button>
+  </div>
+  
+  <div *ngIf="success" class="alert alert-modern alert-success alert-dismissible fade show">
+    <i class="bi bi-check-circle-fill"></i>
+    {{ success }}
+    <button type="button" class="btn-close" (click)="success=''"></button>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card-modern">
+    <div class="card-header">
+      <h4>
+        <i class="bi bi-geo-alt"></i>
+        District Master
+        <span class="badge-count">{{ districts.length }} Records</span>
+      </h4>
+    </div>
+
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+      <button class="btn-action-toolbar btn-add" (click)="toggleForm()" [disabled]="showForm" title="Add New Record">
+        <i class="bi bi-plus-circle-fill"></i> Add
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-edit" (click)="onEdit()" [disabled]="!selectedRowId || showForm" title="Edit Selected Record">
+        <i class="bi bi-pencil-fill"></i> Edit
+      </button>
+      <button class="btn-action-toolbar btn-delete" (click)="deleteSelected()" [disabled]="!selectedRowId || showForm" title="Delete Selected Record">
+        <i class="bi bi-trash-fill"></i> Delete
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-print" (click)="onPrint()" [disabled]="showForm" title="Print Record">
+        <i class="bi bi-printer-fill"></i> Print
+      </button>
+      <button class="btn-action-toolbar btn-attach" (click)="onAttach()" [disabled]="showForm" title="Attach File">
+        <i class="bi bi-paperclip"></i> Attach
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-confirm" (click)="onConfirm()" [disabled]="!selectedRowId || !showForm" title="Confirm Record">
+        <i class="bi bi-check-circle-fill"></i> Confirm
+      </button>
+      <button class="btn-action-toolbar btn-undo" (click)="onUndo()" [disabled]="!showForm" title="Undo Last Action">
+        <i class="bi bi-arrow-counterclockwise"></i> Undo
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-close-page" (click)="onClose()" [disabled]="showForm" title="Close">
+        <i class="bi bi-x-circle-fill"></i> Close
+      </button>
+    </div>
+
+    <div class="card-body">
+      <!-- Form Section -->
+      <div *ngIf="showForm" class="form-section">
+        <h5>
+          <i class="bi" [class.bi-pencil-square]="isEditMode" [class.bi-plus-circle]="!isEditMode"></i>
+          {{ isEditMode ? 'Edit' : 'Add New' }} District
+        </h5>
+        
+        <form [formGroup]="districtForm" (ngSubmit)="onSubmit()">
+          <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">District Code <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="DistrictCode" 
+                     placeholder="e.g., DIST001">
+              <div *ngIf="districtForm.get('DistrictCode')?.invalid && districtForm.get('DistrictCode')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">District Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="DistrictName" 
+                     placeholder="e.g., Mumbai City">
+              <div *ngIf="districtForm.get('DistrictName')?.invalid && districtForm.get('DistrictName')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">State Name <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="StateID">
+                <option [value]="null">-- Select State --</option>
+                <option *ngFor="let state of states" [value]="state.StateID">
+                  {{ state.StateName }}
+                </option>
+              </select>
+              <div *ngIf="districtForm.get('StateID')?.invalid && districtForm.get('StateID')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Please select a state
+              </div>
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Opening Balance</label>
+              <input type="number" class="form-control" formControlName="OpeningBalance" 
+                     step="0.01" placeholder="0.00">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Status</label>
+              <div class="form-switch mt-2">
+                <input class="form-check-input" type="checkbox" formControlName="IsActive" id="isActive">
+                <label class="form-check-label" for="isActive">
+                  <span class="badge" [class.badge-active]="districtForm.get('IsActive')?.value"
+                                       [class.badge-inactive]="!districtForm.get('IsActive')?.value">
+                    {{ districtForm.get('IsActive')?.value ? 'Active' : 'Inactive' }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-sm-12">
+              <label class="form-label">Remarks</label>
+              <input type="text" class="form-control" formControlName="Remarks" 
+                     placeholder="Additional notes...">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar" *ngIf="!showForm">
+        <div class="filter-input-group">
+          <i class="bi bi-search"></i>
+          <input 
+            type="text" 
+            class="filter-input" 
+            placeholder="Search by Code, Name or State..." 
+            [(ngModel)]="searchTerm"
+            (input)="applyFilter()">
+          <button *ngIf="searchTerm" class="filter-clear" (click)="searchTerm=''; applyFilter()">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        </div>
+        <span class="filter-count" *ngIf="filteredDistricts.length !== districts.length">
+          Showing {{ filteredDistricts.length }} of {{ districts.length }} records
+        </span>
+      </div>
+
+      <!-- Table Section -->
+      <div class="table-responsive">
+        <div *ngIf="loading && !showForm" class="text-center py-5">
+          <div class="spinner-modern"></div>
+          <p class="text-muted mt-3">Loading districts...</p>
+        </div>
+        
+        <!-- Desktop Table View -->
+        <table class="table-modern desktop-view" *ngIf="!loading">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>District Code</th>
+              <th>District Name</th>
+              <th>State Name</th>
+              <th>Opening Balance</th>
+              <th>Talukas</th>
+              <th>Status</th>
+              <th>Confirmed</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let district of filteredDistricts; let i = index"
+                [class.selected-row]="selectedRowId === district.DistrictID"
+                (click)="selectRow(district.DistrictID!)">
+              <td>{{ i + 1 }}</td>
+              <td><strong>{{ district.DistrictCode }}</strong></td>
+              <td>{{ district.DistrictName }}</td>
+              <td>{{ getStateName(district.StateID) || '-' }}</td>
+              <td>{{ district.OpeningBalance | number:'1.2-2' }}</td>
+              <td>
+                <span class="badge badge-info">{{ district.TalukaCount || 0 }}</span>
+              </td>
+              <td>
+                <span class="badge" [class.badge-active]="district.IsActive"
+                                   [class.badge-inactive]="!district.IsActive">
+                  <span class="status-dot" [class.active]="district.IsActive" [class.inactive]="!district.IsActive"></span>
+                  {{ district.IsActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [class.badge-confirmed]="district.IsConfirmed"
+                                     [class.badge-unconfirmed]="!district.IsConfirmed">
+                  {{ district.IsConfirmed ? 'Yes' : 'No' }}
+                </span>
+              </td>
+              <td (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editDistrict(district)" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteDistrict(district.DistrictID!)" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="districts.length === 0">
+              <td colspan="9" class="text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+                <p class="text-muted mt-2">No districts found. Click "Add" to create one.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Mobile Card View -->
+        <div class="mobile-cards" *ngIf="!loading">
+          <div *ngIf="filteredDistricts.length === 0" class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+            <p class="text-muted mt-2">No districts found.</p>
+          </div>
+          <div class="group-card" *ngFor="let district of filteredDistricts; let i = index"
+               [class.selected-card]="selectedRowId === district.DistrictID"
+               (click)="selectRow(district.DistrictID!)">
+            <div class="card-header-row">
+              <span class="card-index">#{{ i + 1 }}</span>
+              <span class="card-code"><strong>{{ district.DistrictCode }}</strong></span>
+              <div class="card-actions" (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editDistrict(district)" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteDistrict(district.DistrictID!)" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body-row">
+              <div class="card-field">
+                <span class="field-label">District Name</span>
+                <span class="field-value">{{ district.DistrictName }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">State Name</span>
+                <span class="field-value">{{ getStateName(district.StateID) || '-' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Opening Balance</span>
+                <span class="field-value">{{ district.OpeningBalance | number:'1.2-2' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Status</span>
+                <span class="field-value">
+                  <span class="badge" [class.badge-active]="district.IsActive"
+                                     [class.badge-inactive]="!district.IsActive">
+                    <span class="status-dot" [class.active]="district.IsActive" [class.inactive]="!district.IsActive"></span>
+                    {{ district.IsActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Confirmed</span>
+                <span class="field-value">
+                  <span class="badge" [class.badge-confirmed]="district.IsConfirmed"
+                                     [class.badge-unconfirmed]="!district.IsConfirmed">
+                    {{ district.IsConfirmed ? 'Yes' : 'No' }}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

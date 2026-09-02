@@ -1,0 +1,181 @@
+<div class="page-container">
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <h5 class="mb-0">
+        <i class="bi bi-pin-map me-2"></i>Place Master
+      </h5>
+    </div>
+    <div class="toolbar-right">
+      <button class="btn btn-add me-2" (click)="toggleForm()">
+        <i class="bi bi-plus-circle me-1"></i> Add
+      </button>
+      <button class="btn btn-edit me-2" (click)="editSelected()" [disabled]="!selectedRowId">
+        <i class="bi bi-pencil me-1"></i> Edit
+      </button>
+      <button class="btn btn-delete me-2" (click)="deleteSelected()" [disabled]="!selectedRowId">
+        <i class="bi bi-trash me-1"></i> Delete
+      </button>
+      <button class="btn btn-print me-2">
+        <i class="bi bi-printer me-1"></i> Print
+      </button>
+      <button class="btn btn-attach me-2">
+        <i class="bi bi-paperclip me-1"></i> Attach
+      </button>
+      <button class="btn btn-confirm me-2" (click)="confirmSelected()" [disabled]="!selectedRowId">
+        <i class="bi bi-check-circle me-1"></i> Confirm
+      </button>
+      <button class="btn btn-undo me-2" (click)="undoSelected()" [disabled]="!selectedRowId">
+        <i class="bi bi-arrow-counterclockwise me-1"></i> Undo
+      </button>
+      <button class="btn btn-close-page" (click)="goBack()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div class="form-container" *ngIf="showForm">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">{{ isEditMode ? 'Edit Place' : 'Add New Place' }}</h6>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="placeForm" (ngSubmit)="onSubmit()">
+          <div class="row">
+            <div class="col-md-3 mb-3">
+              <label class="form-label">Place Code <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="PlaceCode" placeholder="Enter code" />
+              <div class="text-danger" *ngIf="placeForm.get('PlaceCode')?.invalid && placeForm.get('PlaceCode')?.touched">
+                Code is required
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">Place Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="PlaceName" placeholder="Enter name" />
+              <div class="text-danger" *ngIf="placeForm.get('PlaceName')?.invalid && placeForm.get('PlaceName')?.touched">
+                Name is required
+              </div>
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">State</label>
+              <select class="form-select" formControlName="StateID" (change)="onStateChange()">
+                <option [value]="null">-- Select State --</option>
+                <option *ngFor="let s of states" [value]="s.StateID">{{ s.StateName }}</option>
+              </select>
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">District</label>
+              <select class="form-select" formControlName="DistrictID" (change)="onDistrictChange()">
+                <option [value]="null">-- Select District --</option>
+                <option *ngFor="let d of filteredDistricts" [value]="d.DistrictID">{{ d.DistrictName }}</option>
+              </select>
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">Taluka</label>
+              <select class="form-select" formControlName="TalukaID">
+                <option [value]="null">-- Select Taluka --</option>
+                <option *ngFor="let t of filteredTalukas" [value]="t.TalukaID">{{ t.TalukaName }}</option>
+              </select>
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">Pincode</label>
+              <input type="text" class="form-control" formControlName="Pincode" placeholder="Enter pincode" />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">Opening Balance</label>
+              <input type="number" class="form-control" formControlName="OpeningBalance" step="0.01" />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label class="form-label">Remarks</label>
+              <input type="text" class="form-control" formControlName="Remarks" placeholder="Remarks" />
+            </div>
+            <div class="col-md-3 mb-3 d-flex align-items-end">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" formControlName="IsActive" id="isActive" />
+                <label class="form-check-label" for="isActive">Is Active</label>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary me-2" [disabled]="placeForm.invalid">
+                <i class="bi bi-save me-1"></i> {{ isEditMode ? 'Update' : 'Save' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="error" class="alert alert-danger mt-2">{{ error }}</div>
+  <div *ngIf="success" class="alert alert-success mt-2">{{ success }}</div>
+
+  <!-- Search & Table -->
+  <div class="table-container mt-3">
+    <div class="row mb-2">
+      <div class="col-md-4">
+        <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchTerm" (input)="filterPlaces()" />
+      </div>
+      <div class="col-md-8 text-end">
+        <span class="badge bg-primary">Total: {{ filteredPlaces.length }}</span>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 50px;">#</th>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Taluka</th>
+            <th>District</th>
+            <th>Pincode</th>
+            <th>Opening Balance</th>
+            <th>Active</th>
+            <th>Confirmed</th>
+            <th style="width: 80px;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of filteredPlaces; let i = index" 
+              [class.table-active]="selectedRowId === item.PlaceID"
+              (click)="selectRow(item.PlaceID)">
+            <td>{{ i + 1 }}</td>
+            <td>{{ item.PlaceCode }}</td>
+            <td>{{ item.PlaceName }}</td>
+            <td>{{ item.TalukaName || '-' }}</td>
+            <td>{{ item.DistrictName || '-' }}</td>
+            <td>{{ item.Pincode || '-' }}</td>
+            <td class="text-end">{{ item.OpeningBalance | number:'1.2-2' }}</td>
+            <td>
+              <span class="badge" [ngClass]="item.IsActive ? 'bg-success' : 'bg-danger'">
+                {{ item.IsActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="item.IsConfirmed ? 'bg-success' : 'bg-warning'">
+                {{ item.IsConfirmed ? 'Confirmed' : 'Pending' }}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="editPlace(item); $event.stopPropagation()">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="deletePlace(item); $event.stopPropagation()">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredPlaces.length === 0">
+            <td colspan="10" class="text-center text-muted">No places found</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

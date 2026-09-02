@@ -38,7 +38,10 @@ export const SIDEBAR_MENUS: { [key: string]: SidebarMenuItem[] } = {
     { id: 'create-counter', label: 'Create Counter', icon: 'bi-plus-circle', route: '/create-counter' },
     { id: 'account-groups', label: 'Account Groups', icon: 'bi-folder2-open', route: '/groups' },
     { id: 'account-info', label: 'Account Info', icon: 'bi-people', route: '/accounts' },
-    { id: 'products', label: 'Products', icon: 'bi-box-seam', route: '/products' }
+    { id: 'products', label: 'Products', icon: 'bi-box-seam', route: '/products' },
+    { id: 'district', label: 'District', icon: 'bi-geo-alt', route: '/districts' },
+    { id: 'taluka', label: 'Taluka', icon: 'bi-building', route: '/talukas' },
+    { id: 'place', label: 'Place', icon: 'bi-pin-map', route: '/places' }
   ],
 
   // Finance Menu

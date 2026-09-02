@@ -1,0 +1,312 @@
+<div class="page-container">
+  <!-- Messages -->
+  <div *ngIf="error" class="alert alert-modern alert-danger alert-dismissible fade show">
+    <i class="bi bi-exclamation-circle-fill"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error=''"></button>
+  </div>
+  
+  <div *ngIf="success" class="alert alert-modern alert-success alert-dismissible fade show">
+    <i class="bi bi-check-circle-fill"></i>
+    {{ success }}
+    <button type="button" class="btn-close" (click)="success=''"></button>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card-modern">
+    <div class="card-header">
+      <h4>
+        <i class="bi bi-diagram-3"></i>
+        Branch Master
+        <span class="badge-count">{{ branches.length }} Records</span>
+      </h4>
+    </div>
+
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+      <button class="btn-action-toolbar btn-add" (click)="toggleForm()" [disabled]="showForm" title="Add New Record">
+        <i class="bi bi-plus-circle-fill"></i> Add
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-edit" (click)="onEdit()" [disabled]="!selectedRowId || showForm" title="Edit Selected Record">
+        <i class="bi bi-pencil-fill"></i> Edit
+      </button>
+      <button class="btn-action-toolbar btn-delete" (click)="deleteSelected()" [disabled]="!selectedRowId || showForm" title="Delete Selected Record">
+        <i class="bi bi-trash-fill"></i> Delete
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-print" (click)="onPrint()" [disabled]="showForm" title="Print Record">
+        <i class="bi bi-printer-fill"></i> Print
+      </button>
+      <button class="btn-action-toolbar btn-attach" (click)="onAttach()" [disabled]="showForm" title="Attach File">
+        <i class="bi bi-paperclip"></i> Attach
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-confirm" (click)="onConfirm()" [disabled]="!selectedRowId || !showForm" title="Confirm Record">
+        <i class="bi bi-check-circle-fill"></i> Confirm
+      </button>
+      <button class="btn-action-toolbar btn-undo" (click)="onUndo()" [disabled]="!showForm" title="Undo Last Action">
+        <i class="bi bi-arrow-counterclockwise"></i> Undo
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-close-page" (click)="onClose()" [disabled]="showForm" title="Close">
+        <i class="bi bi-x-circle-fill"></i> Close
+      </button>
+    </div>
+
+    <div class="card-body">
+      <!-- Form Section -->
+      <div *ngIf="showForm" class="form-section">
+        <h5>
+          <i class="bi" [class.bi-pencil-square]="isEditMode" [class.bi-plus-circle]="!isEditMode"></i>
+          {{ isEditMode ? 'Edit' : 'Add New' }} Branch
+        </h5>
+        
+        <form [formGroup]="branchForm" (ngSubmit)="onSubmit()">
+          <div class="row g-3">
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">Firm <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="FirmID">
+                <option value="">Select Firm</option>
+                <option *ngFor="let firm of firms" [value]="firm.FirmID">{{ firm.TradeName }}</option>
+              </select>
+              <div *ngIf="branchForm.get('FirmID')?.invalid && branchForm.get('FirmID')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">Branch Code <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="Code" 
+                     placeholder="e.g., BR001">
+              <div *ngIf="branchForm.get('Code')?.invalid && branchForm.get('Code')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">Branch Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="Name" 
+                     placeholder="e.g., Head Office">
+              <div *ngIf="branchForm.get('Name')?.invalid && branchForm.get('Name')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">Contact Person</label>
+              <input type="text" class="form-control" formControlName="ContactPerson" 
+                     placeholder="Contact person name">
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-control" formControlName="Phone" 
+                     placeholder="Phone number">
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">Mobile</label>
+              <input type="text" class="form-control" formControlName="Mobile" 
+                     placeholder="Mobile number">
+            </div>
+
+            <div class="col-md-6 col-sm-12">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" formControlName="Email" 
+                     placeholder="email@example.com">
+              <div *ngIf="branchForm.get('Email')?.invalid && branchForm.get('Email')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Valid email required
+              </div>
+            </div>
+
+            <div class="col-md-6 col-sm-12">
+              <label class="form-label">Address Line 1</label>
+              <input type="text" class="form-control" formControlName="Address1" 
+                     placeholder="Address line 1">
+            </div>
+
+            <div class="col-md-6 col-sm-12">
+              <label class="form-label">Address Line 2</label>
+              <input type="text" class="form-control" formControlName="Address2" 
+                     placeholder="Address line 2">
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">Place</label>
+              <input type="text" class="form-control" formControlName="Place" 
+                     placeholder="City/Town">
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">State</label>
+              <input type="text" class="form-control" formControlName="State" 
+                     placeholder="State">
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">Pincode</label>
+              <input type="text" class="form-control" formControlName="Pincode" 
+                     placeholder="Pincode">
+            </div>
+
+            <div class="col-md-12 col-sm-12">
+              <label class="form-label">Status</label>
+              <div class="form-switch mt-2">
+                <input class="form-check-input" type="checkbox" formControlName="IsActive" id="isActive">
+                <label class="form-check-label" for="isActive">
+                  <span class="badge" [class.badge-active]="branchForm.get('IsActive')?.value"
+                                       [class.badge-inactive]="!branchForm.get('IsActive')?.value">
+                    {{ branchForm.get('IsActive')?.value ? 'Active' : 'Inactive' }}
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-actions mt-4">
+            <button type="submit" class="btn btn-primary" [disabled]="loading">
+              <i class="bi" [class.bi-save]="!loading" [class.bi-hourglass-split]="loading"></i>
+              {{ loading ? 'Saving...' : (isEditMode ? 'Update' : 'Save') }}
+            </button>
+            <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">
+              <i class="bi bi-x-circle"></i> Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar" *ngIf="!showForm">
+        <div class="filter-input-group">
+          <i class="bi bi-search"></i>
+          <input 
+            type="text" 
+            class="filter-input" 
+            placeholder="Search by Code, Name, Firm or Place..." 
+            [(ngModel)]="searchTerm"
+            (input)="applyFilter()">
+          <button *ngIf="searchTerm" class="filter-clear" (click)="searchTerm=''; applyFilter()">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        </div>
+        <span class="filter-count" *ngIf="filteredBranches.length !== branches.length">
+          Showing {{ filteredBranches.length }} of {{ branches.length }} records
+        </span>
+      </div>
+
+      <!-- Table Section -->
+      <div class="table-responsive">
+        <div *ngIf="loading && !showForm" class="text-center py-5">
+          <div class="spinner-modern"></div>
+          <p class="text-muted mt-3">Loading branches...</p>
+        </div>
+        
+        <!-- Desktop Table View -->
+        <table class="table-modern desktop-view" *ngIf="!loading">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Code</th>
+              <th>Branch Name</th>
+              <th>Firm</th>
+              <th>Contact Person</th>
+              <th>Place</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let branch of filteredBranches; let i = index"
+                [class.selected-row]="selectedRowId === branch.BranchID"
+                (click)="selectRow(branch.BranchID!)">
+              <td>{{ i + 1 }}</td>
+              <td><strong>{{ branch.Code }}</strong></td>
+              <td>{{ branch.Name }}</td>
+              <td>{{ branch.FirmName }}</td>
+              <td>{{ branch.ContactPerson || '-' }}</td>
+              <td>{{ branch.Place || '-' }}</td>
+              <td>
+                <span class="badge" [class.badge-active]="branch.IsActive"
+                                   [class.badge-inactive]="!branch.IsActive">
+                  <span class="status-dot" [class.active]="branch.IsActive" [class.inactive]="!branch.IsActive"></span>
+                  {{ branch.IsActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editBranch(branch)" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteBranch(branch.BranchID!)" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredBranches.length === 0">
+              <td colspan="8" class="text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+                <p class="text-muted mt-2">No branches found. Click "Add" to create one.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Mobile Card View -->
+        <div class="mobile-cards" *ngIf="!loading">
+          <div *ngIf="filteredBranches.length === 0" class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+            <p class="text-muted mt-2">No branches found.</p>
+          </div>
+          <div class="group-card" *ngFor="let branch of filteredBranches; let i = index"
+               [class.selected-card]="selectedRowId === branch.BranchID"
+               (click)="selectRow(branch.BranchID!)">
+            <div class="card-header-row">
+              <span class="card-index">#{{ i + 1 }}</span>
+              <span class="card-code"><strong>{{ branch.Code }}</strong></span>
+              <div class="card-actions" (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editBranch(branch)" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteBranch(branch.BranchID!)" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body-row">
+              <div class="card-field">
+                <span class="field-label">Branch Name</span>
+                <span class="field-value">{{ branch.Name }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Firm</span>
+                <span class="field-value">{{ branch.FirmName || '-' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Contact Person</span>
+                <span class="field-value">{{ branch.ContactPerson || '-' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Place</span>
+                <span class="field-value">{{ branch.Place || '-' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Status</span>
+                <span class="field-value">
+                  <span class="badge" [class.badge-active]="branch.IsActive"
+                                     [class.badge-inactive]="!branch.IsActive">
+                    <span class="status-dot" [class.active]="branch.IsActive" [class.inactive]="!branch.IsActive"></span>
+                    {{ branch.IsActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

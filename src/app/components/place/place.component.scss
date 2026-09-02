@@ -1,0 +1,206 @@
+@import '../../styles/common.scss';
+
+.page-container {
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #e17055 0%, #fab1a0 100%);
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: white;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  .toolbar-left {
+    h5 {
+      font-weight: 600;
+      i {
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  .toolbar-right {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .btn {
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    color: white;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(4px);
+    display: inline-flex;
+    align-items: center;
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    i {
+      font-size: 1.1rem;
+    }
+  }
+
+  .btn-add {
+    background: linear-gradient(135deg, #00b894, #00cec9);
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #00a381, #00b8b5);
+    }
+  }
+
+  .btn-edit {
+    background: linear-gradient(135deg, #0984e3, #74b9ff);
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0773c5, #5aa9f0);
+    }
+  }
+
+  .btn-delete {
+    background: linear-gradient(135deg, #d63031, #ff7675);
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #b92b2b, #f06a69);
+    }
+  }
+
+  .btn-print {
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #5a4bd1, #9289f0);
+    }
+  }
+
+  .btn-attach {
+    background: linear-gradient(135deg, #fdcb6e, #f9ca24);
+    color: #2d3436;
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #f0b83a, #e8b80e);
+    }
+  }
+
+  .btn-confirm {
+    background: linear-gradient(135deg, #00b894, #55efc4);
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #00a381, #3de0b0);
+    }
+  }
+
+  .btn-undo {
+    background: linear-gradient(135deg, #e17055, #fab1a0);
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #d65a3e, #f09e8c);
+    }
+  }
+
+  .btn-close-page {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.4);
+      transform: rotate(90deg);
+    }
+  }
+}
+
+.form-container {
+  margin-bottom: 20px;
+  .card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    .card-header {
+      background: linear-gradient(135deg, #dfe6e9, #b2bec3);
+      border-bottom: none;
+      border-radius: 12px 12px 0 0;
+      padding: 12px 20px;
+      h6 {
+        font-weight: 600;
+        color: #2d3436;
+      }
+    }
+    .card-body {
+      padding: 20px;
+    }
+  }
+}
+
+.table-container {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+
+  .table {
+    margin-bottom: 0;
+    thead {
+      background: #f1f2f6;
+      th {
+        font-weight: 600;
+        font-size: 13px;
+        color: #2d3436;
+        border-bottom: 2px solid #dfe6e9;
+      }
+    }
+    tbody {
+      tr {
+        cursor: pointer;
+        &:hover {
+          background: #f8f9fa;
+        }
+        &.table-active {
+          background: #dfe6e9;
+        }
+        td {
+          vertical-align: middle;
+          font-size: 13px;
+        }
+      }
+    }
+  }
+}
+
+.alert {
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.badge {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+@media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    .toolbar-right {
+      justify-content: center;
+    }
+  }
+}

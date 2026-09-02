@@ -1,6 +1,6 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 
 interface SidebarItem {
   id: string;
@@ -45,6 +45,14 @@ export class SidebarComponent implements OnChanges {
             { id: 'account-groups', label: 'Group', icon: 'bi-folder2-open', route: '/groups' },
             { id: 'primary-group', label: 'Primary Group', icon: 'bi-folder', route: '/primary-groups' },
             { id: 'opening-balance', label: 'Opening Balance', icon: 'bi-wallet2', route: '/opening-balance' }
+          ]
+        },
+        {
+          title: 'Location',
+          items: [
+            { id: 'district', label: 'District', icon: 'bi-geo-alt', route: '/districts' },
+            { id: 'taluka', label: 'Taluka', icon: 'bi-building', route: '/talukas' },
+            { id: 'place', label: 'Place', icon: 'bi-pin-map', route: '/places' }
           ]
         },
         {
@@ -107,7 +115,10 @@ export class SidebarComponent implements OnChanges {
             { id: 'firm', label: 'Firm', icon: 'bi-building', route: '/firms' },
             { id: 'branches', label: 'Branches', icon: 'bi-diagram-3', route: '/branches' },
             { id: 'financial-year', label: 'Financial Year', icon: 'bi-calendar3', route: '/financial-year' },
-            { id: 'balance-forward', label: 'Balance Forward', icon: 'bi-arrow-left-right', route: '/balance-forward' }
+            { id: 'balance-forward', label: 'Balance Forward', icon: 'bi-arrow-left-right', route: '/balance-forward' },
+            { id: 'district', label: 'District', icon: 'bi-geo-alt', route: '/districts' },
+            { id: 'taluka', label: 'Taluka', icon: 'bi-building', route: '/talukas' },
+            { id: 'place', label: 'Place', icon: 'bi-pin-map', route: '/places' }
           ]
         },
         {
@@ -150,6 +161,25 @@ export class SidebarComponent implements OnChanges {
   }
 
   closeSidebar(): void {
+    console.log('closeSidebar called, isOpen before:', this.isOpen);
     this.isOpen = false;
+    console.log('closeSidebar, isOpen after:', this.isOpen);
+  }
+
+  navigateAndClose(route: string): void {
+    console.log('navigateAndClose called with route:', route);
+    // Close the sidebar first
+    this.isOpen = false;
+    // Use Router to navigate after a small delay to ensure sidebar closes
+    setTimeout(() => {
+      // Find the Router instance from the DI
+      const router = (this as any).router;
+      if (router) {
+        console.log('Navigating to:', route);
+        router.navigate([route]);
+      } else {
+        console.error('Router not available');
+      }
+    }, 100);
   }
 }

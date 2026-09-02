@@ -19,6 +19,18 @@ const firmRoutes = require('./routes/firmRoutes');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const openingBalanceRoutes = require('./routes/openingBalanceRoutes');
+const branchRoutes = require('./routes/branchRoutes');
+const financialYearRoutes = require('./routes/financialYearRoutes');
+const primaryGroupRoutes = require('./routes/primaryGroupRoutes');
+const districtRoutes = require('./routes/districtRoutes');
+const talukaRoutes = require('./routes/talukaRoutes');
+const placeRoutes = require('./routes/placeRoutes');
+const stateRoutes = require('./routes/stateRoutes');
+
+console.log('✅ State routes loaded');
+console.log('✅ District routes loaded');
+console.log('✅ Taluka routes loaded');
+console.log('✅ Place routes loaded');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
@@ -27,6 +39,13 @@ app.use('/api/firms', firmRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/opening-balance', openingBalanceRoutes);
+app.use('/api/branches', branchRoutes);
+app.use('/api/financial-years', financialYearRoutes);
+app.use('/api/primary-groups', primaryGroupRoutes);
+app.use('/api/states', stateRoutes);
+app.use('/api/districts', districtRoutes);
+app.use('/api/talukas', talukaRoutes);
+app.use('/api/places', placeRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
