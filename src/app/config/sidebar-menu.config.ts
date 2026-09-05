@@ -39,10 +39,18 @@ export const SIDEBAR_MENUS: { [key: string]: SidebarMenuItem[] } = {
     { id: 'account-groups', label: 'Account Groups', icon: 'bi-folder2-open', route: '/groups' },
     { id: 'account-info', label: 'Account Info', icon: 'bi-people', route: '/accounts' },
     { id: 'products', label: 'Products', icon: 'bi-box-seam', route: '/products' },
-    { id: 'district', label: 'District', icon: 'bi-geo-alt', route: '/districts' },
-    { id: 'taluka', label: 'Taluka', icon: 'bi-building', route: '/talukas' },
-    { id: 'place', label: 'Place', icon: 'bi-pin-map', route: '/places' },
-    { id: 'state', label: 'State', icon: 'bi-globe2', route: '/states' }
+    { 
+      id: 'location', 
+      label: 'Location', 
+      icon: 'bi-geo-alt',
+      expanded: true,
+      children: [
+        { id: 'state', label: 'State', icon: 'bi-globe2', route: '/states' },
+        { id: 'district', label: 'District', icon: 'bi-geo-alt', route: '/districts' },
+        { id: 'taluka', label: 'Taluka', icon: 'bi-building', route: '/talukas' },
+        { id: 'place', label: 'Place', icon: 'bi-pin-map', route: '/places' }
+      ]
+    }
   ],
 
   // Finance Menu

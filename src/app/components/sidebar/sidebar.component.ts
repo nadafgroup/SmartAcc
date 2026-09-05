@@ -50,6 +50,7 @@ export class SidebarComponent implements OnChanges {
         {
           title: 'Location',
           items: [
+            { id: 'state', label: 'State', icon: 'bi-globe2', route: '/states' },
             { id: 'district', label: 'District', icon: 'bi-geo-alt', route: '/districts' },
             { id: 'taluka', label: 'Taluka', icon: 'bi-building', route: '/talukas' },
             { id: 'place', label: 'Place', icon: 'bi-pin-map', route: '/places' }
