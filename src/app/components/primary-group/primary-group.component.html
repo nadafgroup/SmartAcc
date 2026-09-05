@@ -159,12 +159,11 @@
           <thead>
             <tr>
               <th>#</th>
-              <th>Code</th>
-              <th>Name</th>
-              <th>Account Group</th>
-              <th>Account Info</th>
+              <th>Primary Group Code</th>
+              <th>Primary Group Name</th>
               <th>Type</th>
               <th>Nature</th>
+              <th>Opening Balance</th>
               <th>Status</th>
               <th>Confirmed</th>
               <th>Actions</th>
@@ -177,22 +176,6 @@
               <td>{{ i + 1 }}</td>
               <td><strong>{{ group.PrimaryGroupCode }}</strong></td>
               <td>{{ group.PrimaryGroupName }}</td>
-              <td>
-                <span *ngIf="group.AccountGroupName; else noGroup">
-                  {{ group.AccountGroupName }}
-                </span>
-                <ng-template #noGroup>
-                  <span class="text-muted">None</span>
-                </ng-template>
-              </td>
-              <td>
-                <span *ngIf="group.AccountInfoName; else noInfo">
-                  {{ group.AccountInfoName }}
-                </span>
-                <ng-template #noInfo>
-                  <span class="text-muted">None</span>
-                </ng-template>
-              </td>
               <td>
                 <span class="badge badge-type" [class.badge-assets]="group.GroupType === 'Assets'"
                                                    [class.badge-liabilities]="group.GroupType === 'Liabilities'"
@@ -208,6 +191,7 @@
                   {{ group.NatureOfAccount || '-' }}
                 </span>
               </td>
+              <td class="text-end">{{ group.OpeningBalance | number:'1.2-2' }}</td>
               <td>
                 <span class="badge" [class.badge-active]="group.IsActive"
                                    [class.badge-inactive]="!group.IsActive">
@@ -230,10 +214,10 @@
                 </button>
               </td>
             </tr>
-            <tr *ngIf="groups.length === 0">
-              <td colspan="10" class="text-center py-5">
+            <tr *ngIf="filteredGroups.length === 0">
+              <td colspan="9" class="text-center py-5">
                 <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
-                <p class="text-muted mt-2">No primary groups found. Click "Add New Record" to create one.</p>
+                <p class="text-muted mt-2">No primary groups found. Click "Add" to create one.</p>
               </td>
             </tr>
           </tbody>

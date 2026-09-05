@@ -1,0 +1,258 @@
+<div class="page-container">
+  <!-- Messages -->
+  <div *ngIf="error" class="alert alert-modern alert-danger alert-dismissible fade show">
+    <i class="bi bi-exclamation-circle-fill"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error=''"></button>
+  </div>
+  
+  <div *ngIf="success" class="alert alert-modern alert-success alert-dismissible fade show">
+    <i class="bi bi-check-circle-fill"></i>
+    {{ success }}
+    <button type="button" class="btn-close" (click)="success=''"></button>
+  </div>
+
+  <!-- Main Card -->
+  <div class="card-modern">
+    <div class="card-header">
+      <h4>
+        <i class="bi bi-globe2"></i>
+        State Master
+        <span class="badge-count">{{ states.length }} Records</span>
+      </h4>
+    </div>
+
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+      <button class="btn-action-toolbar btn-add" (click)="toggleForm()" [disabled]="showForm" title="Add New Record">
+        <i class="bi bi-plus-circle-fill"></i> Add
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-edit" (click)="onEdit()" [disabled]="!selectedRowId || showForm" title="Edit Selected Record">
+        <i class="bi bi-pencil-fill"></i> Edit
+      </button>
+      <button class="btn-action-toolbar btn-delete" (click)="deleteSelected()" [disabled]="!selectedRowId || showForm" title="Delete Selected Record">
+        <i class="bi bi-trash-fill"></i> Delete
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-print" (click)="onPrint()" [disabled]="showForm" title="Print Record">
+        <i class="bi bi-printer-fill"></i> Print
+      </button>
+      <button class="btn-action-toolbar btn-attach" (click)="onAttach()" [disabled]="showForm" title="Attach File">
+        <i class="bi bi-paperclip"></i> Attach
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-confirm" (click)="onConfirm()" [disabled]="!selectedRowId || showForm" title="Confirm Record">
+        <i class="bi bi-check-circle-fill"></i> Confirm
+      </button>
+      <button class="btn-action-toolbar btn-undo" (click)="onUndo()" [disabled]="!showForm" title="Undo Last Action">
+        <i class="bi bi-arrow-counterclockwise"></i> Undo
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-close-page" (click)="onClose()" [disabled]="showForm" title="Close">
+        <i class="bi bi-x-circle-fill"></i> Close
+      </button>
+    </div>
+
+    <div class="card-body">
+      <!-- Form Section -->
+      <div *ngIf="showForm" class="form-section">
+        <h5>
+          <i class="bi" [class.bi-pencil-square]="isEditMode" [class.bi-plus-circle]="!isEditMode"></i>
+          {{ isEditMode ? 'Edit' : 'Add New' }} State
+        </h5>
+        
+        <form [formGroup]="stateForm" (ngSubmit)="onSubmit()">
+          <div class="row g-3">
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">State Code <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="StateCode" 
+                     placeholder="e.g., MH">
+              <div *ngIf="stateForm.get('StateCode')?.invalid && stateForm.get('StateCode')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">State Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="StateName" 
+                     placeholder="e.g., Maharashtra">
+              <div *ngIf="stateForm.get('StateName')?.invalid && stateForm.get('StateName')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
+              </div>
+            </div>
+
+            <div class="col-md-4 col-sm-6">
+              <label class="form-label">Opening Balance</label>
+              <input type="number" class="form-control" formControlName="OpeningBalance" 
+                     step="0.01" placeholder="0.00">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Status</label>
+              <div class="form-switch mt-2">
+                <input class="form-check-input" type="checkbox" formControlName="IsActive" id="isActive">
+                <label class="form-check-label" for="isActive">
+                  <span class="badge" [class.badge-active]="stateForm.get('IsActive')?.value"
+                                       [class.badge-inactive]="!stateForm.get('IsActive')?.value">
+                    {{ stateForm.get('IsActive')?.value ? 'Active' : 'Inactive' }}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-sm-12">
+              <label class="form-label">Remarks</label>
+              <input type="text" class="form-control" formControlName="Remarks" 
+                     placeholder="Additional notes...">
+            </div>
+          </div>
+          
+          <div class="form-actions mt-4">
+            <button type="submit" class="btn btn-primary" [disabled]="loading">
+              <i class="bi" [class.bi-save]="!loading" [class.bi-hourglass-split]="loading"></i>
+              {{ loading ? 'Saving...' : (isEditMode ? 'Update' : 'Save') }}
+            </button>
+            <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">
+              <i class="bi bi-x-circle"></i> Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="filter-bar" *ngIf="!showForm">
+        <div class="filter-input-group">
+          <i class="bi bi-search"></i>
+          <input 
+            type="text" 
+            class="filter-input" 
+            placeholder="Search by Code or Name..." 
+            [(ngModel)]="searchTerm"
+            (input)="applyFilter()">
+          <button *ngIf="searchTerm" class="filter-clear" (click)="searchTerm=''; applyFilter()">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        </div>
+        <span class="filter-count" *ngIf="filteredStates.length !== states.length">
+          Showing {{ filteredStates.length }} of {{ states.length }} records
+        </span>
+      </div>
+
+      <!-- Table Section -->
+      <div class="table-responsive">
+        <div *ngIf="loading && !showForm" class="text-center py-5">
+          <div class="spinner-modern"></div>
+          <p class="text-muted mt-3">Loading states...</p>
+        </div>
+        
+        <!-- Desktop Table View -->
+        <table class="table-modern desktop-view" *ngIf="!loading">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>State Code</th>
+              <th>State Name</th>
+              <th>Opening Balance</th>
+              <th>Status</th>
+              <th>Confirmed</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let state of filteredStates; let i = index"
+                [class.selected-row]="selectedRowId === state.StateID"
+                (click)="selectRow(state.StateID!)">
+              <td>{{ i + 1 }}</td>
+              <td><strong>{{ state.StateCode }}</strong></td>
+              <td>{{ state.StateName }}</td>
+              <td class="text-end">{{ state.OpeningBalance | number:'1.2-2' }}</td>
+              <td>
+                <span class="badge" [class.badge-active]="state.IsActive"
+                                   [class.badge-inactive]="!state.IsActive">
+                  <span class="status-dot" [class.active]="state.IsActive" [class.inactive]="!state.IsActive"></span>
+                  {{ state.IsActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [class.badge-confirmed]="state.IsConfirmed"
+                                     [class.badge-unconfirmed]="!state.IsConfirmed">
+                  {{ state.IsConfirmed ? 'Yes' : 'No' }}
+                </span>
+              </td>
+              <td (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editState(state)" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteState(state.StateID!)" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredStates.length === 0">
+              <td colspan="7" class="text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+                <p class="text-muted mt-2">No states found. Click "Add" to create one.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Mobile Card View -->
+        <div class="mobile-cards" *ngIf="!loading">
+          <div *ngIf="filteredStates.length === 0" class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+            <p class="text-muted mt-2">No states found.</p>
+          </div>
+          <div class="group-card" *ngFor="let state of filteredStates; let i = index"
+               [class.selected-card]="selectedRowId === state.StateID"
+               (click)="selectRow(state.StateID!)">
+            <div class="card-header-row">
+              <span class="card-index">#{{ i + 1 }}</span>
+              <span class="card-code"><strong>{{ state.StateCode }}</strong></span>
+              <div class="card-actions" (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editState(state)" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteState(state.StateID!)" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body-row">
+              <div class="card-field">
+                <span class="field-label">State Name</span>
+                <span class="field-value">{{ state.StateName }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Opening Balance</span>
+                <span class="field-value">{{ state.OpeningBalance | number:'1.2-2' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Status</span>
+                <span class="field-value">
+                  <span class="badge" [class.badge-active]="state.IsActive"
+                                     [class.badge-inactive]="!state.IsActive">
+                    <span class="status-dot" [class.active]="state.IsActive" [class.inactive]="!state.IsActive"></span>
+                    {{ state.IsActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Confirmed</span>
+                <span class="field-value">
+                  <span class="badge" [class.badge-confirmed]="state.IsConfirmed"
+                                     [class.badge-unconfirmed]="!state.IsConfirmed">
+                    {{ state.IsConfirmed ? 'Yes' : 'No' }}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

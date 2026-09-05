@@ -41,7 +41,8 @@ export const SIDEBAR_MENUS: { [key: string]: SidebarMenuItem[] } = {
     { id: 'products', label: 'Products', icon: 'bi-box-seam', route: '/products' },
     { id: 'district', label: 'District', icon: 'bi-geo-alt', route: '/districts' },
     { id: 'taluka', label: 'Taluka', icon: 'bi-building', route: '/talukas' },
-    { id: 'place', label: 'Place', icon: 'bi-pin-map', route: '/places' }
+    { id: 'place', label: 'Place', icon: 'bi-pin-map', route: '/places' },
+    { id: 'state', label: 'State', icon: 'bi-globe2', route: '/states' }
   ],
 
   // Finance Menu

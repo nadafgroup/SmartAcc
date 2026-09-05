@@ -100,6 +100,13 @@ export const routes: Routes = [
             (s) => s.PlaceComponent
           ),
       },
+      {
+        path: 'states',
+        loadComponent: () =>
+          import('./components/state/state.component').then(
+            (s) => s.StateComponent
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: '/login' }

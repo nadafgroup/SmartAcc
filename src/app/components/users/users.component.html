@@ -24,32 +24,32 @@
 
     <!-- Action Toolbar -->
     <div class="action-toolbar">
-      <button class="btn-action-toolbar btn-add" (click)="toggleForm()" [disabled]="showForm">
+      <button class="btn-action-toolbar btn-add" (click)="toggleForm()" [disabled]="showForm" title="Add New Record">
         <i class="bi bi-plus-circle-fill"></i> Add
       </button>
       <div class="toolbar-divider"></div>
-      <button class="btn-action-toolbar btn-edit" (click)="onEdit()" [disabled]="!selectedRowId || showForm">
+      <button class="btn-action-toolbar btn-edit" (click)="onEdit()" [disabled]="!selectedRowId || showForm" title="Edit Selected Record">
         <i class="bi bi-pencil-fill"></i> Edit
       </button>
-      <button class="btn-action-toolbar btn-delete" (click)="deleteSelected()" [disabled]="!selectedRowId || showForm">
+      <button class="btn-action-toolbar btn-delete" (click)="deleteSelected()" [disabled]="!selectedRowId || showForm" title="Delete Selected Record">
         <i class="bi bi-trash-fill"></i> Delete
       </button>
       <div class="toolbar-divider"></div>
-      <button class="btn-action-toolbar btn-print" (click)="onPrint()" [disabled]="showForm">
+      <button class="btn-action-toolbar btn-print" (click)="onPrint()" [disabled]="showForm" title="Print Record">
         <i class="bi bi-printer-fill"></i> Print
       </button>
-      <button class="btn-action-toolbar btn-attach" (click)="onAttach()" [disabled]="showForm">
+      <button class="btn-action-toolbar btn-attach" (click)="onAttach()" [disabled]="showForm" title="Attach File">
         <i class="bi bi-paperclip"></i> Attach
       </button>
       <div class="toolbar-divider"></div>
-      <button class="btn-action-toolbar btn-confirm" (click)="onConfirm()" [disabled]="!selectedRowId">
+      <button class="btn-action-toolbar btn-confirm" (click)="onConfirm()" [disabled]="!selectedRowId || !showForm" title="Confirm Record">
         <i class="bi bi-check-circle-fill"></i> Confirm
       </button>
-      <button class="btn-action-toolbar btn-undo" (click)="onUndo()" [disabled]="!showForm">
+      <button class="btn-action-toolbar btn-undo" (click)="onUndo()" [disabled]="!showForm" title="Undo Last Action">
         <i class="bi bi-arrow-counterclockwise"></i> Undo
       </button>
       <div class="toolbar-divider"></div>
-      <button class="btn-action-toolbar btn-close" (click)="onClose()" [disabled]="showForm">
+      <button class="btn-action-toolbar btn-close" (click)="onClose()" [disabled]="showForm" title="Close">
         <i class="bi bi-x-circle-fill"></i> Close
       </button>
     </div>
@@ -174,13 +174,12 @@
             </div>
 
             <div class="col-12">
-              <div class="d-flex gap-2">
-                <button type="submit" class="btn-primary-gradient" [disabled]="loading">
-                  <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-                  <i class="bi" [class.bi-pencil]="isEditMode" [class.bi-plus]="!isEditMode"></i>
-                  {{ isEditMode ? 'Update User' : 'Save User' }}
+              <div class="form-actions mt-4">
+                <button type="submit" class="btn btn-primary" [disabled]="loading">
+                  <i class="bi" [class.bi-save]="!loading" [class.bi-hourglass-split]="loading"></i>
+                  {{ loading ? 'Saving...' : (isEditMode ? 'Update' : 'Save') }}
                 </button>
-                <button type="button" class="btn-secondary-gradient" (click)="cancel()">
+                <button type="button" class="btn btn-secondary ms-2" (click)="cancel()">
                   <i class="bi bi-x-circle"></i> Cancel
                 </button>
               </div>
