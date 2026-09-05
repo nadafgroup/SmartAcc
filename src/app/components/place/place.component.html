@@ -1,181 +1,303 @@
 <div class="page-container">
-  <!-- Toolbar -->
-  <div class="toolbar">
-    <div class="toolbar-left">
-      <h5 class="mb-0">
-        <i class="bi bi-pin-map me-2"></i>Place Master
-      </h5>
-    </div>
-    <div class="toolbar-right">
-      <button class="btn btn-add me-2" (click)="toggleForm()">
-        <i class="bi bi-plus-circle me-1"></i> Add
-      </button>
-      <button class="btn btn-edit me-2" (click)="editSelected()" [disabled]="!selectedRowId">
-        <i class="bi bi-pencil me-1"></i> Edit
-      </button>
-      <button class="btn btn-delete me-2" (click)="deleteSelected()" [disabled]="!selectedRowId">
-        <i class="bi bi-trash me-1"></i> Delete
-      </button>
-      <button class="btn btn-print me-2">
-        <i class="bi bi-printer me-1"></i> Print
-      </button>
-      <button class="btn btn-attach me-2">
-        <i class="bi bi-paperclip me-1"></i> Attach
-      </button>
-      <button class="btn btn-confirm me-2" (click)="confirmSelected()" [disabled]="!selectedRowId">
-        <i class="bi bi-check-circle me-1"></i> Confirm
-      </button>
-      <button class="btn btn-undo me-2" (click)="undoSelected()" [disabled]="!selectedRowId">
-        <i class="bi bi-arrow-counterclockwise me-1"></i> Undo
-      </button>
-      <button class="btn btn-close-page" (click)="goBack()">
-        <i class="bi bi-x-lg"></i>
-      </button>
-    </div>
+  <!-- Messages -->
+  <div *ngIf="error" class="alert alert-modern alert-danger alert-dismissible fade show">
+    <i class="bi bi-exclamation-circle-fill"></i>
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error=''"></button>
+  </div>
+  
+  <div *ngIf="success" class="alert alert-modern alert-success alert-dismissible fade show">
+    <i class="bi bi-check-circle-fill"></i>
+    {{ success }}
+    <button type="button" class="btn-close" (click)="success=''"></button>
   </div>
 
-  <!-- Form -->
-  <div class="form-container" *ngIf="showForm">
-    <div class="card">
-      <div class="card-header">
-        <h6 class="mb-0">{{ isEditMode ? 'Edit Place' : 'Add New Place' }}</h6>
-      </div>
-      <div class="card-body">
+  <!-- Main Card -->
+  <div class="card-modern">
+    <div class="card-header">
+      <h4>
+        <i class="bi bi-pin-map"></i>
+        Place Master
+        <span class="badge-count">{{ filteredPlaces.length }} Records</span>
+      </h4>
+    </div>
+
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+      <button class="btn-action-toolbar btn-add" (click)="toggleForm()" [disabled]="showForm" title="Add New Record">
+        <i class="bi bi-plus-circle-fill"></i> Add
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-edit" (click)="editSelected()" [disabled]="!selectedRowId || showForm" title="Edit Selected Record">
+        <i class="bi bi-pencil-fill"></i> Edit
+      </button>
+      <button class="btn-action-toolbar btn-delete" (click)="deleteSelected()" [disabled]="!selectedRowId || showForm" title="Delete Selected Record">
+        <i class="bi bi-trash-fill"></i> Delete
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-print" (click)="onPrint()" [disabled]="showForm" title="Print Record">
+        <i class="bi bi-printer-fill"></i> Print
+      </button>
+      <button class="btn-action-toolbar btn-attach" (click)="onAttach()" [disabled]="showForm" title="Attach File">
+        <i class="bi bi-paperclip"></i> Attach
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-confirm" (click)="onConfirm()" [disabled]="!selectedRowId || !showForm" title="Confirm Record">
+        <i class="bi bi-check-circle-fill"></i> Confirm
+      </button>
+      <button class="btn-action-toolbar btn-undo" (click)="onUndo()" [disabled]="!showForm" title="Undo Last Action">
+        <i class="bi bi-arrow-counterclockwise"></i> Undo
+      </button>
+      <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-close" (click)="onClose()" [disabled]="showForm" title="Close">
+        <i class="bi bi-x-circle-fill"></i> Close
+      </button>
+    </div>
+
+    <div class="card-body">
+      <!-- Form Section -->
+      <div *ngIf="showForm" class="form-section">
+        <h5>
+          <i class="bi" [class.bi-pencil-square]="isEditMode" [class.bi-plus-circle]="!isEditMode"></i>
+          {{ isEditMode ? 'Edit' : 'Add New' }} Place
+        </h5>
+        
         <form [formGroup]="placeForm" (ngSubmit)="onSubmit()">
-          <div class="row">
-            <div class="col-md-3 mb-3">
+          <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
               <label class="form-label">Place Code <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="PlaceCode" placeholder="Enter code" />
-              <div class="text-danger" *ngIf="placeForm.get('PlaceCode')?.invalid && placeForm.get('PlaceCode')?.touched">
-                Code is required
+              <input type="text" class="form-control" formControlName="PlaceCode" placeholder="Enter code">
+              <div *ngIf="placeForm.get('PlaceCode')?.invalid && placeForm.get('PlaceCode')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
               </div>
             </div>
-            <div class="col-md-3 mb-3">
+
+            <div class="col-md-3 col-sm-6">
               <label class="form-label">Place Name <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="PlaceName" placeholder="Enter name" />
-              <div class="text-danger" *ngIf="placeForm.get('PlaceName')?.invalid && placeForm.get('PlaceName')?.touched">
-                Name is required
+              <input type="text" class="form-control" formControlName="PlaceName" placeholder="Enter name">
+              <div *ngIf="placeForm.get('PlaceName')?.invalid && placeForm.get('PlaceName')?.touched" 
+                   class="text-danger small">
+                <i class="bi bi-exclamation-circle"></i> Required
               </div>
             </div>
-            <div class="col-md-3 mb-3">
+
+            <div class="col-md-3 col-sm-6">
               <label class="form-label">State</label>
               <select class="form-select" formControlName="StateID" (change)="onStateChange()">
                 <option [value]="null">-- Select State --</option>
                 <option *ngFor="let s of states" [value]="s.StateID">{{ s.StateName }}</option>
               </select>
             </div>
-            <div class="col-md-3 mb-3">
+
+            <div class="col-md-3 col-sm-6">
               <label class="form-label">District</label>
               <select class="form-select" formControlName="DistrictID" (change)="onDistrictChange()">
                 <option [value]="null">-- Select District --</option>
                 <option *ngFor="let d of filteredDistricts" [value]="d.DistrictID">{{ d.DistrictName }}</option>
               </select>
             </div>
-            <div class="col-md-3 mb-3">
+
+            <div class="col-md-3 col-sm-6">
               <label class="form-label">Taluka</label>
               <select class="form-select" formControlName="TalukaID">
                 <option [value]="null">-- Select Taluka --</option>
                 <option *ngFor="let t of filteredTalukas" [value]="t.TalukaID">{{ t.TalukaName }}</option>
               </select>
             </div>
-            <div class="col-md-3 mb-3">
+
+            <div class="col-md-3 col-sm-6">
               <label class="form-label">Pincode</label>
-              <input type="text" class="form-control" formControlName="Pincode" placeholder="Enter pincode" />
+              <input type="text" class="form-control" formControlName="Pincode" placeholder="Enter pincode">
             </div>
-            <div class="col-md-3 mb-3">
+
+            <div class="col-md-3 col-sm-6">
               <label class="form-label">Opening Balance</label>
-              <input type="number" class="form-control" formControlName="OpeningBalance" step="0.01" />
+              <input type="number" class="form-control" formControlName="OpeningBalance" step="0.01" placeholder="0.00">
             </div>
-            <div class="col-md-3 mb-3">
-              <label class="form-label">Remarks</label>
-              <input type="text" class="form-control" formControlName="Remarks" placeholder="Remarks" />
-            </div>
-            <div class="col-md-3 mb-3 d-flex align-items-end">
-              <div class="form-check">
-                <input type="checkbox" class="form-check-input" formControlName="IsActive" id="isActive" />
-                <label class="form-check-label" for="isActive">Is Active</label>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label">Status</label>
+              <div class="form-switch mt-2">
+                <input class="form-check-input" type="checkbox" formControlName="IsActive" id="isActive">
+                <label class="form-check-label" for="isActive">
+                  <span class="badge" [class.badge-active]="placeForm.get('IsActive')?.value"
+                                       [class.badge-inactive]="!placeForm.get('IsActive')?.value">
+                    {{ placeForm.get('IsActive')?.value ? 'Active' : 'Inactive' }}
+                  </span>
+                </label>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-12">
-              <button type="submit" class="btn btn-primary me-2" [disabled]="placeForm.invalid">
-                <i class="bi bi-save me-1"></i> {{ isEditMode ? 'Update' : 'Save' }}
-              </button>
-              <button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+
+            <div class="col-md-6 col-sm-12">
+              <label class="form-label">Remarks</label>
+              <input type="text" class="form-control" formControlName="Remarks" placeholder="Additional notes...">
             </div>
           </div>
         </form>
       </div>
-    </div>
-  </div>
 
-  <!-- Messages -->
-  <div *ngIf="error" class="alert alert-danger mt-2">{{ error }}</div>
-  <div *ngIf="success" class="alert alert-success mt-2">{{ success }}</div>
-
-  <!-- Search & Table -->
-  <div class="table-container mt-3">
-    <div class="row mb-2">
-      <div class="col-md-4">
-        <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchTerm" (input)="filterPlaces()" />
+      <!-- Filter Bar -->
+      <div class="filter-bar" *ngIf="!showForm">
+        <div class="filter-input-group">
+          <i class="bi bi-search"></i>
+          <input 
+            type="text" 
+            class="filter-input" 
+            placeholder="Search by Place Code or Name..." 
+            [(ngModel)]="searchTerm"
+            (input)="applyFilter()">
+          <button *ngIf="searchTerm" class="filter-clear" (click)="searchTerm=''; applyFilter()">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        </div>
+        <span class="filter-count" *ngIf="filteredPlaces.length !== places.length">
+          Showing {{ filteredPlaces.length }} of {{ places.length }} records
+        </span>
       </div>
-      <div class="col-md-8 text-end">
-        <span class="badge bg-primary">Total: {{ filteredPlaces.length }}</span>
-      </div>
-    </div>
 
-    <div class="table-responsive">
-      <table class="table table-bordered table-hover">
-        <thead class="table-light">
-          <tr>
-            <th style="width: 50px;">#</th>
-            <th>Code</th>
-            <th>Name</th>
-            <th>Taluka</th>
-            <th>District</th>
-            <th>Pincode</th>
-            <th>Opening Balance</th>
-            <th>Active</th>
-            <th>Confirmed</th>
-            <th style="width: 80px;">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of filteredPlaces; let i = index" 
-              [class.table-active]="selectedRowId === item.PlaceID"
-              (click)="selectRow(item.PlaceID)">
-            <td>{{ i + 1 }}</td>
-            <td>{{ item.PlaceCode }}</td>
-            <td>{{ item.PlaceName }}</td>
-            <td>{{ item.TalukaName || '-' }}</td>
-            <td>{{ item.DistrictName || '-' }}</td>
-            <td>{{ item.Pincode || '-' }}</td>
-            <td class="text-end">{{ item.OpeningBalance | number:'1.2-2' }}</td>
-            <td>
-              <span class="badge" [ngClass]="item.IsActive ? 'bg-success' : 'bg-danger'">
-                {{ item.IsActive ? 'Active' : 'Inactive' }}
-              </span>
-            </td>
-            <td>
-              <span class="badge" [ngClass]="item.IsConfirmed ? 'bg-success' : 'bg-warning'">
-                {{ item.IsConfirmed ? 'Confirmed' : 'Pending' }}
-              </span>
-            </td>
-            <td>
-              <button class="btn btn-sm btn-outline-primary me-1" (click)="editPlace(item); $event.stopPropagation()">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-danger" (click)="deletePlace(item); $event.stopPropagation()">
-                <i class="bi bi-trash"></i>
-              </button>
-            </td>
-          </tr>
-          <tr *ngIf="filteredPlaces.length === 0">
-            <td colspan="10" class="text-center text-muted">No places found</td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Table Section -->
+      <div class="table-responsive">
+        <div *ngIf="loading && !showForm" class="text-center py-5">
+          <div class="spinner-modern"></div>
+          <p class="text-muted mt-3">Loading places...</p>
+        </div>
+        
+        <!-- Desktop Table View -->
+        <table class="table-modern desktop-view" *ngIf="!loading">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Place Code</th>
+              <th>Place Name</th>
+              <th>Taluka</th>
+              <th>District</th>
+              <th>Pincode</th>
+              <th>Status</th>
+              <th>Confirmed</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of filteredPlaces; let i = index"
+                [class.selected-row]="selectedRowId === item.PlaceID"
+                (click)="selectRow(item.PlaceID)">
+              <td>{{ i + 1 }}</td>
+              <td><strong>{{ item.PlaceCode }}</strong></td>
+              <td>{{ item.PlaceName }}</td>
+              <td>
+                <span *ngIf="item.TalukaName; else noTaluka">
+                  {{ item.TalukaName }}
+                </span>
+                <ng-template #noTaluka>
+                  <span class="text-muted">-</span>
+                </ng-template>
+              </td>
+              <td>
+                <span *ngIf="item.DistrictName; else noDistrict">
+                  {{ item.DistrictName }}
+                </span>
+                <ng-template #noDistrict>
+                  <span class="text-muted">-</span>
+                </ng-template>
+              </td>
+              <td>{{ item.Pincode || '-' }}</td>
+              <td>
+                <span class="badge" [class.badge-active]="item.IsActive"
+                                   [class.badge-inactive]="!item.IsActive">
+                  <span class="status-dot" [class.active]="item.IsActive" [class.inactive]="!item.IsActive"></span>
+                  {{ item.IsActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [class.badge-confirmed]="item.IsConfirmed"
+                                   [class.badge-pending]="!item.IsConfirmed">
+                  {{ item.IsConfirmed ? 'Confirmed' : 'Pending' }}
+                </span>
+              </td>
+              <td (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editPlace(item)" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deletePlace(item)" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredPlaces.length === 0">
+              <td colspan="9" class="text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+                <p class="text-muted mt-2">No places found. Click "Add" to create one.</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Mobile Card View -->
+        <div class="mobile-cards" *ngIf="!loading">
+          <div *ngIf="filteredPlaces.length === 0" class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 2rem; color: #a0aec0;"></i>
+            <p class="text-muted mt-2">No places found.</p>
+          </div>
+          <div class="group-card" *ngFor="let item of filteredPlaces; let i = index"
+               [class.selected-card]="selectedRowId === item.PlaceID"
+               (click)="selectRow(item.PlaceID)">
+            <div class="card-header-row">
+              <span class="card-index">#{{ i + 1 }}</span>
+              <span class="card-code"><strong>{{ item.PlaceCode }}</strong></span>
+              <div class="card-actions" (click)="$event.stopPropagation()">
+                <button class="btn-action btn-edit" (click)="editPlace(item)" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deletePlace(item)" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body-row">
+              <div class="card-field">
+                <span class="field-label">Place Name</span>
+                <span class="field-value">{{ item.PlaceName }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Taluka</span>
+                <span class="field-value">{{ item.TalukaName || '-' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">District</span>
+                <span class="field-value">{{ item.DistrictName || '-' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Pincode</span>
+                <span class="field-value">{{ item.Pincode || '-' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Opening Balance</span>
+                <span class="field-value">{{ item.OpeningBalance | number:'1.2-2' }}</span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Status</span>
+                <span class="field-value">
+                  <span class="badge" [class.badge-active]="item.IsActive"
+                                     [class.badge-inactive]="!item.IsActive">
+                    <span class="status-dot" [class.active]="item.IsActive" [class.inactive]="!item.IsActive"></span>
+                    {{ item.IsActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </span>
+              </div>
+              <div class="card-field">
+                <span class="field-label">Confirmed</span>
+                <span class="field-value">
+                  <span class="badge" [class.badge-confirmed]="item.IsConfirmed"
+                                     [class.badge-pending]="!item.IsConfirmed">
+                    {{ item.IsConfirmed ? 'Confirmed' : 'Pending' }}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

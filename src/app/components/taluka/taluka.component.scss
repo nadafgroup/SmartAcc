@@ -195,6 +195,60 @@
   border-radius: 12px;
 }
 
+/* Action buttons in table */
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0 2px;
+
+  i {
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  &.btn-edit {
+    background: #ebf5ff;
+    color: #3182ce;
+
+    &:hover {
+      background: #bee3f8;
+      transform: scale(1.05);
+    }
+  }
+
+  &.btn-delete {
+    background: #fff5f5;
+    color: #e53e3e;
+
+    &:hover {
+      background: #fed7d7;
+      transform: scale(1.05);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+}
+
+/* Table action column */
+.table-modern td:last-child,
+.table-modern th:last-child {
+  white-space: nowrap;
+  min-width: 80px;
+}
+
 @media (max-width: 768px) {
   .toolbar {
     flex-direction: column;
