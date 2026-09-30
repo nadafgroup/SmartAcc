@@ -96,4 +96,19 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// Confirm a branch
+router.put('/:id/confirm', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const confirmed = await BranchModel.confirm(id);
+        if (!confirmed) {
+            return res.status(404).json({ success: false, message: 'Branch not found' });
+        }
+        res.json({ success: true, data: confirmed, message: 'Branch confirmed successfully' });
+    } catch (error) {
+        console.error('Error confirming branch:', error);
+        res.status(500).json({ success: false, message: 'Failed to confirm branch', error: error.message });
+    }
+});
+
 module.exports = router;

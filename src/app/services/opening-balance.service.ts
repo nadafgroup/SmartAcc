@@ -55,4 +55,12 @@ export class OpeningBalanceService {
   postRecord(id: number): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${id}/post`, {});
   }
+
+  confirm(id: number): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}/confirm`, {});
+  }
+
+  unconfirm(id: number): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}/unconfirm`, {});
+  }
 }

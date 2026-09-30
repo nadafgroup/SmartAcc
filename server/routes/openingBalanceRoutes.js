@@ -94,4 +94,24 @@ router.post('/:id/post', async (req, res) => {
     }
 });
 
+// Confirm opening balance record (validate + post)
+router.put('/:id/confirm', async (req, res) => {
+    try {
+        const confirmed = await OpeningBalanceModel.confirm(req.params.id);
+        res.json({ success: true, data: confirmed, message: 'Opening balance confirmed successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// Un-confirm opening balance record (revert to draft so it can be edited)
+router.put('/:id/unconfirm', async (req, res) => {
+    try {
+        const unconfirmed = await OpeningBalanceModel.unconfirm(req.params.id);
+        res.json({ success: true, data: unconfirmed, message: 'Opening balance un-confirmed successfully' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
 module.exports = router;

@@ -39,10 +39,17 @@
         <i class="bi bi-check2-square"></i> Post
       </button>
       <div class="toolbar-divider"></div>
+      <button class="btn-action-toolbar btn-confirm" (click)="onConfirm()" [disabled]="openingBalanceForm.invalid" title="Confirm and Save">
+        <i class="bi bi-check-circle-fill"></i> Confirm
+      </button>
+      <button class="btn-action-toolbar btn-undo" (click)="onUndo()" [disabled]="!showForm && !selectedRowId" title="Undo">
+        <i class="bi bi-arrow-counterclockwise"></i> Undo
+      </button>
+      <div class="toolbar-divider"></div>
       <button class="btn-action-toolbar btn-print" (click)="onPrint()" [disabled]="showForm" title="Print Record">
         <i class="bi bi-printer-fill"></i> Print
       </button>
-      <button class="btn-action-toolbar btn-close" (click)="onClose()" [disabled]="showForm" title="Close">
+      <button class="btn-action-toolbar btn-close" (click)="onClose()" title="Close Form">
         <i class="bi bi-x-circle-fill"></i> Close
       </button>
     </div>

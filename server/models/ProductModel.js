@@ -143,6 +143,37 @@ class ProductModel {
             `);
         return { success: true };
     }
+
+    // Confirm product
+    static async confirm(id) {
+        const pool = await getPool();
+        const columnCheck = await pool.request().query(`
+            SELECT COUNT(*) as hasColumn FROM sys.columns 
+            WHERE Name = 'IsConfirmed' AND Object_ID = Object_ID('Products')
+        `);
+
+        if (columnCheck.recordset[0].hasColumn > 0) {
+            const result = await pool.request()
+                .input('ProductID', sql.Int, id)
+                .query(`
+                    UPDATE Products
+                    SET IsConfirmed = 1, UpdatedAt = GETDATE()
+                    OUTPUT INSERTED.*
+                    WHERE ProductID = @ProductID
+                `);
+            return result.recordset[0];
+        }
+
+        const result = await pool.request()
+            .input('ProductID', sql.Int, id)
+            .query(`
+                UPDATE Products
+                SET UpdatedAt = GETDATE()
+                OUTPUT INSERTED.*
+                WHERE ProductID = @ProductID
+            `);
+        return result.recordset[0];
+    }
 }
 
 module.exports = ProductModel;

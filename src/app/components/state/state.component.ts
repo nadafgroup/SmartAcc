@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { StateService, State } from '../../services/state.service';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -21,12 +22,14 @@ export class StateComponent implements OnInit, OnDestroy {
   success: string = '';
   showForm: boolean = false;
   isEditMode: boolean = false;
+  isFormFilled: boolean = false;
   stateForm: FormGroup;
   private subscriptions: Subscription[] = [];
 
   constructor(
     private stateService: StateService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private router: Router
   ) {
     this.stateForm = this.fb.group({
       StateCode: ['', Validators.required],
@@ -207,35 +210,176 @@ export class StateComponent implements OnInit, OnDestroy {
   }
 
   onConfirm(): void {
-    if (!this.selectedRowId) return;
-    if (!confirm('Confirm this record?')) return;
-    this.loading = true;
-    this.subscriptions.push(
-      this.stateService.confirm(this.selectedRowId).subscribe({
-        next: () => {
-          this.success = 'State confirmed successfully!';
-          this.loading = false;
-          this.loadStates();
-        },
-        error: (err) => {
-          this.error = 'Failed to confirm state. Please try again.';
-          this.loading = false;
-          console.error('Error confirming state:', err);
-        }
-      })
-    );
+    // Add new record: save then confirm
+    if (this.showForm && this.selectedRowId === -1) {
+      if (this.stateForm.invalid) {
+        Object.keys(this.stateForm.controls).forEach(key => {
+          this.stateForm.get(key)?.markAsTouched();
+        });
+        this.error = 'Please fill all required fields before confirming';
+        setTimeout(() => this.error = '', 3000);
+        return;
+      }
+
+      this.loading = true;
+      const formData = this.stateForm.value;
+      this.subscriptions.push(
+        this.stateService.create(formData).subscribe({
+          next: (response: any) => {
+            const newId = response.data && response.data.StateID ? response.data.StateID : response.data;
+            if (newId) {
+              this.selectedRowId = newId;
+              this.subscriptions.push(
+                this.stateService.confirm(newId).subscribe({
+                  next: () => {
+                    this.loading = false;
+                    this.success = 'State created and confirmed successfully!';
+                    this.isFormFilled = true;
+                    this.loadStates();
+                    setTimeout(() => {
+                      this.success = '';
+                      this.resetForm();
+                      this.showForm = false;
+                      this.selectedRowId = null;
+                      this.isFormFilled = false;
+                    }, 2000);
+                  },
+                  error: (err) => {
+                    this.loading = false;
+                    this.success = 'State created successfully!';
+                    this.isFormFilled = true;
+                    this.loadStates();
+                    setTimeout(() => {
+                      this.success = '';
+                      this.resetForm();
+                      this.showForm = false;
+                      this.selectedRowId = null;
+                      this.isFormFilled = false;
+                    }, 3000);
+                    console.error('Error confirming state:', err);
+                  }
+                })
+              );
+            } else {
+              this.loading = false;
+              this.success = 'State created successfully!';
+              this.loadStates();
+              setTimeout(() => {
+                this.success = '';
+                this.toggleForm();
+              }, 1500);
+            }
+          },
+          error: (err) => {
+            this.loading = false;
+            this.error = 'Failed to create state. Please try again.';
+            setTimeout(() => this.error = '', 3000);
+            console.error('Error creating state:', err);
+          }
+        })
+      );
+    } else if (this.showForm && this.isEditMode && this.selectedRowId) {
+      // Edit mode: update then confirm
+      if (this.stateForm.invalid) {
+        Object.keys(this.stateForm.controls).forEach(key => {
+          this.stateForm.get(key)?.markAsTouched();
+        });
+        this.error = 'Please fill all required fields before confirming';
+        setTimeout(() => this.error = '', 3000);
+        return;
+      }
+
+      this.loading = true;
+      const formData = this.stateForm.value;
+      this.subscriptions.push(
+        this.stateService.update(this.selectedRowId, formData).subscribe({
+          next: () => {
+            this.subscriptions.push(
+              this.stateService.confirm(this.selectedRowId!).subscribe({
+                next: () => {
+                  this.loading = false;
+                  this.success = 'State updated and confirmed successfully!';
+                  this.isFormFilled = true;
+                  this.loadStates();
+                  setTimeout(() => {
+                    this.success = '';
+                    this.resetForm();
+                    this.showForm = false;
+                    this.selectedRowId = null;
+                    this.isFormFilled = false;
+                  }, 2000);
+                },
+                error: (err) => {
+                  this.loading = false;
+                  this.success = 'State updated successfully!';
+                  this.isFormFilled = true;
+                  this.loadStates();
+                  setTimeout(() => {
+                    this.success = '';
+                    this.resetForm();
+                    this.showForm = false;
+                    this.selectedRowId = null;
+                    this.isFormFilled = false;
+                  }, 3000);
+                  console.error('Error confirming state:', err);
+                }
+              })
+            );
+          },
+          error: (err) => {
+            this.loading = false;
+            this.error = 'Failed to update state. Please try again.';
+            setTimeout(() => this.error = '', 3000);
+            console.error('Error updating state:', err);
+          }
+        })
+      );
+    } else if (this.selectedRowId && this.selectedRowId > 0 && !this.showForm) {
+      // Confirm an existing saved record
+      this.loading = true;
+      const stateId = this.selectedRowId as number;
+      this.subscriptions.push(
+        this.stateService.confirm(stateId).subscribe({
+          next: () => {
+            this.loading = false;
+            this.success = `Record ${stateId} confirmed successfully!`;
+            this.isFormFilled = true;
+            this.loadStates();
+            setTimeout(() => {
+              this.success = '';
+              this.selectedRowId = null;
+              this.isFormFilled = false;
+            }, 2000);
+          },
+          error: (err) => {
+            this.loading = false;
+            this.error = 'Failed to confirm state. Please try again.';
+            setTimeout(() => this.error = '', 3000);
+            console.error('Error confirming state:', err);
+          }
+        })
+      );
+    } else {
+      this.error = 'Please select a valid record to confirm';
+      setTimeout(() => this.error = '', 3000);
+    }
   }
 
   onUndo(): void {
-    if (!this.showForm) return;
     this.resetForm();
-    this.success = 'Form reset.';
+    this.showForm = false;
+    this.selectedRowId = null;
+    this.isFormFilled = false;
+    this.success = 'Undo successful - changes reverted';
+    setTimeout(() => this.success = '', 3000);
   }
 
   onClose(): void {
-    if (this.showForm) return;
-    // Close the page
-    window.close ? window.close() : alert('Close functionality triggered.');
+    this.resetForm();
+    this.showForm = false;
+    this.selectedRowId = null;
+    this.isFormFilled = false;
+    this.router.navigate(['/dashboard']);
   }
 
   cancel(): void {

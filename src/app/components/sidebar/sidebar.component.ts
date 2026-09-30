@@ -116,10 +116,7 @@ export class SidebarComponent implements OnChanges {
             { id: 'firm', label: 'Firm', icon: 'bi-building', route: '/firms' },
             { id: 'branches', label: 'Branches', icon: 'bi-diagram-3', route: '/branches' },
             { id: 'financial-year', label: 'Financial Year', icon: 'bi-calendar3', route: '/financial-year' },
-            { id: 'balance-forward', label: 'Balance Forward', icon: 'bi-arrow-left-right', route: '/balance-forward' },
-            { id: 'district', label: 'District', icon: 'bi-geo-alt', route: '/districts' },
-            { id: 'taluka', label: 'Taluka', icon: 'bi-building', route: '/talukas' },
-            { id: 'place', label: 'Place', icon: 'bi-pin-map', route: '/places' }
+            { id: 'balance-forward', label: 'Balance Forward', icon: 'bi-arrow-left-right', route: '/balance-forward' }
           ]
         },
         {

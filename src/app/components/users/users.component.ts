@@ -33,7 +33,8 @@ export class UsersComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private userService: UserService
+    private userService: UserService,
+    private router: Router
   ) {
     this.userForm = this.fb.group({
       UserCode: ['', [Validators.required, Validators.maxLength(50)]],
@@ -248,12 +249,178 @@ export class UsersComponent implements OnInit {
   }
 
   onConfirm(): void {
-    // Confirm logic - similar to account group
-    this.success = 'User confirmed successfully!';
-    setTimeout(() => this.success = '', 3000);
+    // If form is open and we're adding a new record
+    if (this.showForm && this.selectedRowId === -1) {
+      if (this.userForm.invalid) {
+        Object.keys(this.userForm.controls).forEach(key => {
+          this.userForm.get(key)?.markAsTouched();
+        });
+        this.error = 'Please fill all required fields before confirming';
+        setTimeout(() => this.error = '', 3000);
+        return;
+      }
+
+      this.loading = true;
+      const userData = this.userForm.value;
+      this.userService.createUser(userData).subscribe({
+        next: (response) => {
+          if (response.success) {
+            const newUserId = response.data && response.data.UserID ? response.data.UserID : response.data;
+            if (newUserId) {
+              this.selectedRowId = newUserId;
+              this.userService.confirmUser(newUserId).subscribe({
+                next: (confirmResponse) => {
+                  this.loading = false;
+                  if (confirmResponse.success) {
+                    this.success = 'User created and confirmed successfully!';
+                    this.isFormFilled = true;
+                    this.loadUsers();
+                    setTimeout(() => {
+                      this.success = '';
+                      this.resetForm();
+                      this.showForm = false;
+                      this.selectedRowId = null;
+                      this.isFormFilled = false;
+                    }, 2000);
+                  } else {
+                    this.error = confirmResponse.message || 'Error confirming record';
+                    setTimeout(() => this.error = '', 3000);
+                  }
+                },
+                error: (err) => {
+                  this.loading = false;
+                  this.success = 'User created successfully!';
+                  this.isFormFilled = true;
+                  this.loadUsers();
+                  setTimeout(() => {
+                    this.success = '';
+                    this.resetForm();
+                    this.showForm = false;
+                    this.selectedRowId = null;
+                    this.isFormFilled = false;
+                  }, 3000);
+                  console.error('Confirm error:', err);
+                }
+              });
+            } else {
+              this.loading = false;
+              this.error = 'Error: No UserID returned from server';
+              setTimeout(() => this.error = '', 3000);
+            }
+          } else {
+            this.loading = false;
+            this.error = response.message || 'Error creating user';
+            setTimeout(() => this.error = '', 3000);
+          }
+        },
+        error: (err) => {
+          this.loading = false;
+          this.error = err.error?.message || 'Error creating user';
+          setTimeout(() => this.error = '', 3000);
+          console.error(err);
+        }
+      });
+    } else if (this.showForm && this.isEditMode && this.selectedUserId) {
+      // Edit mode: save changes first, then confirm
+      if (this.userForm.invalid) {
+        Object.keys(this.userForm.controls).forEach(key => {
+          this.userForm.get(key)?.markAsTouched();
+        });
+        this.error = 'Please fill all required fields before confirming';
+        setTimeout(() => this.error = '', 3000);
+        return;
+      }
+
+      this.loading = true;
+      const userData = this.userForm.value;
+      this.userService.updateUser(this.selectedUserId, userData).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.userService.confirmUser(this.selectedUserId!).subscribe({
+              next: (confirmResponse) => {
+                this.loading = false;
+                if (confirmResponse.success) {
+                  this.success = 'User updated and confirmed successfully!';
+                  this.isFormFilled = true;
+                  this.loadUsers();
+                  setTimeout(() => {
+                    this.success = '';
+                    this.resetForm();
+                    this.showForm = false;
+                    this.selectedRowId = null;
+                    this.isFormFilled = false;
+                  }, 2000);
+                } else {
+                  this.error = confirmResponse.message || 'Error confirming record';
+                  setTimeout(() => this.error = '', 3000);
+                }
+              },
+              error: (err) => {
+                this.loading = false;
+                this.success = 'User updated successfully!';
+                this.isFormFilled = true;
+                this.loadUsers();
+                setTimeout(() => {
+                  this.success = '';
+                  this.resetForm();
+                  this.showForm = false;
+                  this.selectedRowId = null;
+                  this.isFormFilled = false;
+                }, 3000);
+                console.error('Confirm error:', err);
+              }
+            });
+          } else {
+            this.loading = false;
+            this.error = response.message || 'Error updating user';
+            setTimeout(() => this.error = '', 3000);
+          }
+        },
+        error: (err) => {
+          this.loading = false;
+          this.error = err.error?.message || 'Error updating user';
+          setTimeout(() => this.error = '', 3000);
+          console.error(err);
+        }
+      });
+    } else if (this.selectedRowId && this.selectedRowId > 0 && !this.showForm) {
+      // Confirm an existing saved record (not in edit mode)
+      this.loading = true;
+      const userId = this.selectedRowId as number;
+      this.userService.confirmUser(userId).subscribe({
+        next: (response) => {
+          this.loading = false;
+          if (response.success) {
+            this.success = `Record ${userId} confirmed successfully!`;
+            this.isFormFilled = true;
+            this.loadUsers();
+            setTimeout(() => {
+              this.success = '';
+              this.resetForm();
+              this.showForm = false;
+              this.selectedRowId = null;
+              this.isFormFilled = false;
+            }, 2000);
+          } else {
+            this.error = response.message || 'Error confirming record';
+            setTimeout(() => this.error = '', 3000);
+          }
+        },
+        error: (err) => {
+          this.loading = false;
+          this.error = err.error?.message || 'Error confirming record';
+          setTimeout(() => this.error = '', 3000);
+          console.error(err);
+        }
+      });
+    } else {
+      this.error = 'Please select a valid record to confirm';
+      setTimeout(() => this.error = '', 3000);
+    }
   }
 
   onUndo(): void {
+    // Reset the form and toolbar state
     this.resetForm();
     this.showForm = false;
     this.selectedRowId = null;
@@ -263,7 +430,10 @@ export class UsersComponent implements OnInit {
   }
 
   onClose(): void {
-    this.error = 'Close functionality - returning to previous view';
-    setTimeout(() => this.error = '', 3000);
+    this.resetForm();
+    this.showForm = false;
+    this.selectedRowId = null;
+    this.isFormFilled = false;
+    this.router.navigate(['/dashboard']);
   }
 }

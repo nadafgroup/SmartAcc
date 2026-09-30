@@ -58,4 +58,8 @@ export class BranchService {
   delete(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
+
+  confirm(id: number): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}/confirm`, {});
+  }
 }

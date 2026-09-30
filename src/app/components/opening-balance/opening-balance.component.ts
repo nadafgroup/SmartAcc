@@ -187,12 +187,8 @@ export class OpeningBalanceComponent implements OnInit {
   }
 
   editRecord(record: OpeningBalanceRecord): void {
-    if (record.IsPosted) {
-      this.error = 'Cannot edit a posted record';
-      setTimeout(() => this.error = '', 3000);
-      return;
-    }
-    this.editId = record.OpeningBalanceID || null;
+    const id = record.OpeningBalanceID || null;
+    this.editId = id;
     this.isEditMode = true;
     this.showForm = true;
     this.openingBalanceForm.patchValue({
@@ -201,6 +197,21 @@ export class OpeningBalanceComponent implements OnInit {
       OpeningBalance: record.OpeningBalance,
       FinancialYear: record.FinancialYear
     });
+
+    // If the record is posted/confirmed, revert it to draft so it can be edited.
+    if (record.IsPosted && id) {
+      this.openingBalanceService.unconfirm(id).subscribe({
+        next: () => {
+          this.success = 'Confirmed record reopened for editing - please Confirm again after changes';
+          this.loadData();
+          setTimeout(() => this.success = '', 4000);
+        },
+        error: (err) => {
+          this.error = err.error?.message || 'Failed to reopen record for editing';
+          setTimeout(() => this.error = '', 3000);
+        }
+      });
+    }
   }
 
   deleteRecord(id: number): void {
@@ -291,6 +302,86 @@ export class OpeningBalanceComponent implements OnInit {
   postSelected(): void {
     if (!this.selectedRowId) return;
     this.postRecord(this.selectedRowId);
+  }
+
+  onConfirm(): void {
+    if (this.openingBalanceForm.invalid) {
+      Object.keys(this.openingBalanceForm.controls).forEach(key => {
+        this.openingBalanceForm.get(key)?.markAsTouched();
+      });
+      return;
+    }
+
+    const formData = this.openingBalanceForm.value;
+
+    if (this.isEditMode && this.editId) {
+      // Update existing record, then confirm it
+      this.openingBalanceService.update(this.editId, formData).subscribe({
+        next: (updateResponse) => {
+          if (updateResponse.success) {
+            this.openingBalanceService.confirm(this.editId as number).subscribe({
+              next: (confirmResponse) => {
+                if (confirmResponse.success) {
+                  this.success = 'Opening balance confirmed successfully!';
+                  this.loadData();
+                  this.toggleForm();
+                  this.selectedRowId = null;
+                  setTimeout(() => this.success = '', 3000);
+                }
+              },
+              error: (err) => {
+                this.error = err.error?.message || 'Failed to confirm opening balance';
+                console.error(err);
+                setTimeout(() => this.error = '', 3000);
+              }
+            });
+          }
+        },
+        error: (err) => {
+          this.error = err.error?.message || 'Failed to update opening balance';
+          console.error(err);
+          setTimeout(() => this.error = '', 3000);
+        }
+      });
+    } else {
+      // Create new record, then confirm it
+      this.openingBalanceService.create(formData).subscribe({
+        next: (createResponse) => {
+          if (createResponse.success && createResponse.data) {
+            const newId = createResponse.data.OpeningBalanceID;
+            this.openingBalanceService.confirm(newId).subscribe({
+              next: (confirmResponse) => {
+                if (confirmResponse.success) {
+                  this.success = 'Opening balance confirmed successfully!';
+                  this.loadData();
+                  this.toggleForm();
+                  this.selectedRowId = null;
+                  setTimeout(() => this.success = '', 3000);
+                }
+              },
+              error: (err) => {
+                this.error = err.error?.message || 'Failed to confirm opening balance';
+                console.error(err);
+                setTimeout(() => this.error = '', 3000);
+              }
+            });
+          }
+        },
+        error: (err) => {
+          this.error = err.error?.message || 'Failed to create opening balance';
+          console.error(err);
+          setTimeout(() => this.error = '', 3000);
+        }
+      });
+    }
+  }
+
+  onUndo(): void {
+    this.showForm = false;
+    this.isEditMode = false;
+    this.editId = null;
+    this.selectedRowId = null;
+    this.openingBalanceForm.reset({ BalanceType: 'Dr', OpeningBalance: 0, FinancialYear: '2025-2026' });
   }
 
   onPrint(): void {

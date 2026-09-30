@@ -250,6 +250,38 @@ class FinancialYearModel {
       throw error;
     }
   }
+
+  // Confirm a financial year
+  static async confirm(id) {
+    try {
+      const pool = await getPool();
+      const columnCheck = await pool.request().query(`
+        SELECT COUNT(*) as hasColumn FROM sys.columns 
+        WHERE Name = 'IsConfirmed' AND Object_ID = Object_ID('FinancialYears')
+      `);
+
+      if (columnCheck.recordset[0].hasColumn > 0) {
+        await pool.request()
+          .input('FinancialYearID', sql.Int, id)
+          .query(`
+            UPDATE FinancialYears 
+            SET IsConfirmed = 1, ModifiedDate = GETDATE() 
+            WHERE FinancialYearID = @FinancialYearID
+          `);
+      } else {
+        await pool.request()
+          .input('FinancialYearID', sql.Int, id)
+          .query(`
+            UPDATE FinancialYears 
+            SET ModifiedDate = GETDATE() 
+            WHERE FinancialYearID = @FinancialYearID
+          `);
+      }
+      return await this.getById(id);
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 module.exports = FinancialYearModel;

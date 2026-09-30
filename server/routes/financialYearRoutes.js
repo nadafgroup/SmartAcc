@@ -197,4 +197,22 @@ router.get('/firms/dropdown', async (req, res) => {
   }
 });
 
+// Confirm a financial year
+router.put('/:id/confirm', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid ID' });
+    }
+    const confirmed = await FinancialYearModel.confirm(id);
+    if (!confirmed) {
+      return res.status(404).json({ success: false, message: 'Financial year not found' });
+    }
+    res.json({ success: true, data: confirmed, message: 'Financial year confirmed successfully' });
+  } catch (error) {
+    console.error('Error confirming financial year:', error);
+    res.status(500).json({ success: false, message: 'Error confirming financial year', error: error.message });
+  }
+});
+
 module.exports = router;

@@ -256,14 +256,164 @@ export class BranchesComponent implements OnInit {
   }
 
   onConfirm(): void {
-    if (this.selectedRowId && this.selectedRowId > 0 && !this.showForm) {
-      this.success = `Branch ${this.selectedRowId} confirmed successfully!`;
-      this.isFormFilled = true;
-      setTimeout(() => {
-        this.success = '';
-        this.selectedRowId = null;
-        this.isFormFilled = false;
-      }, 2000);
+    // Add new record: save then confirm
+    if (this.showForm && this.selectedRowId === -1) {
+      if (this.branchForm.invalid) {
+        Object.keys(this.branchForm.controls).forEach(key => {
+          this.branchForm.get(key)?.markAsTouched();
+        });
+        this.error = 'Please fill all required fields before confirming';
+        setTimeout(() => this.error = '', 3000);
+        return;
+      }
+
+      this.loading = true;
+      const branchData = this.branchForm.value;
+      this.branchService.create(branchData).subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            const newId = response.data && response.data.BranchID ? response.data.BranchID : response.data;
+            if (newId) {
+              this.selectedRowId = newId;
+              this.branchService.confirm(newId).subscribe({
+                next: (confirmResponse: any) => {
+                  this.loading = false;
+                  if (confirmResponse.success) {
+                    this.success = 'Branch created and confirmed successfully!';
+                  } else {
+                    this.success = 'Branch created successfully!';
+                  }
+                  this.isFormFilled = true;
+                  this.loadBranches();
+                  setTimeout(() => {
+                    this.success = '';
+                    this.resetForm();
+                    this.showForm = false;
+                    this.selectedRowId = null;
+                    this.isFormFilled = false;
+                  }, 2000);
+                },
+                error: (err: any) => {
+                  this.loading = false;
+                  this.success = 'Branch created successfully!';
+                  this.isFormFilled = true;
+                  this.loadBranches();
+                  setTimeout(() => {
+                    this.success = '';
+                    this.resetForm();
+                    this.showForm = false;
+                    this.selectedRowId = null;
+                    this.isFormFilled = false;
+                  }, 3000);
+                  console.error('Confirm error:', err);
+                }
+              });
+            } else {
+              this.loading = false;
+              this.error = 'Error: No BranchID returned from server';
+              setTimeout(() => this.error = '', 3000);
+            }
+          } else {
+            this.loading = false;
+            this.error = response.message || 'Error creating branch';
+            setTimeout(() => this.error = '', 3000);
+          }
+        },
+        error: (err: any) => {
+          this.loading = false;
+          this.error = err.error?.message || 'Error creating branch';
+          setTimeout(() => this.error = '', 3000);
+          console.error(err);
+        }
+      });
+    } else if (this.showForm && this.isEditMode && this.selectedBranchId) {
+      // Edit mode: update then confirm
+      if (this.branchForm.invalid) {
+        Object.keys(this.branchForm.controls).forEach(key => {
+          this.branchForm.get(key)?.markAsTouched();
+        });
+        this.error = 'Please fill all required fields before confirming';
+        setTimeout(() => this.error = '', 3000);
+        return;
+      }
+
+      this.loading = true;
+      const branchData = this.branchForm.value;
+      this.branchService.update(this.selectedBranchId, branchData).subscribe({
+        next: (response: any) => {
+          if (response.success) {
+            this.branchService.confirm(this.selectedBranchId!).subscribe({
+              next: (confirmResponse: any) => {
+                this.loading = false;
+                this.success = confirmResponse.success
+                  ? 'Branch updated and confirmed successfully!'
+                  : 'Branch updated successfully!';
+                this.isFormFilled = true;
+                this.loadBranches();
+                setTimeout(() => {
+                  this.success = '';
+                  this.resetForm();
+                  this.showForm = false;
+                  this.selectedRowId = null;
+                  this.isFormFilled = false;
+                }, 2000);
+              },
+              error: (err: any) => {
+                this.loading = false;
+                this.success = 'Branch updated successfully!';
+                this.isFormFilled = true;
+                this.loadBranches();
+                setTimeout(() => {
+                  this.success = '';
+                  this.resetForm();
+                  this.showForm = false;
+                  this.selectedRowId = null;
+                  this.isFormFilled = false;
+                }, 3000);
+                console.error('Confirm error:', err);
+              }
+            });
+          } else {
+            this.loading = false;
+            this.error = response.message || 'Error updating branch';
+            setTimeout(() => this.error = '', 3000);
+          }
+        },
+        error: (err: any) => {
+          this.loading = false;
+          this.error = err.error?.message || 'Error updating branch';
+          setTimeout(() => this.error = '', 3000);
+          console.error(err);
+        }
+      });
+    } else if (this.selectedRowId && this.selectedRowId > 0 && !this.showForm) {
+      // Confirm an existing saved record
+      this.loading = true;
+      const branchId = this.selectedRowId as number;
+      this.branchService.confirm(branchId).subscribe({
+        next: (response: any) => {
+          this.loading = false;
+          if (response.success) {
+            this.success = `Record ${branchId} confirmed successfully!`;
+            this.isFormFilled = true;
+            this.loadBranches();
+            setTimeout(() => {
+              this.success = '';
+              this.selectedRowId = null;
+              this.isFormFilled = false;
+            }, 2000);
+          } else {
+            this.error = response.message || 'Error confirming record';
+            setTimeout(() => this.error = '', 3000);
+          }
+        },
+        error: (err: any) => {
+          this.loading = false;
+          this.error = err.error?.message || 'Error confirming record';
+          setTimeout(() => this.error = '', 3000);
+          console.error(err);
+        }
+      });
     } else {
       this.error = 'Please select a valid record to confirm';
       setTimeout(() => this.error = '', 3000);

@@ -99,4 +99,19 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// CONFIRM product
+router.put('/:id/confirm', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const product = await ProductModel.confirm(id);
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+        res.json({ success: true, data: product, message: 'Product confirmed successfully' });
+    } catch (err) {
+        console.error('Error confirming product:', err);
+        res.status(500).json({ success: false, message: 'Failed to confirm product', details: err.message });
+    }
+});
+
 module.exports = router;

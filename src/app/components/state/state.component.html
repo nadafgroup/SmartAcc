@@ -42,14 +42,14 @@
         <i class="bi bi-paperclip"></i> Attach
       </button>
       <div class="toolbar-divider"></div>
-      <button class="btn-action-toolbar btn-confirm" (click)="onConfirm()" [disabled]="!selectedRowId || showForm" title="Confirm Record">
+      <button class="btn-action-toolbar btn-confirm" (click)="onConfirm()" [disabled]="!selectedRowId || !showForm" title="Confirm Record">
         <i class="bi bi-check-circle-fill"></i> Confirm
       </button>
       <button class="btn-action-toolbar btn-undo" (click)="onUndo()" [disabled]="!showForm" title="Undo Last Action">
         <i class="bi bi-arrow-counterclockwise"></i> Undo
       </button>
       <div class="toolbar-divider"></div>
-      <button class="btn-action-toolbar btn-close-page" (click)="onClose()" [disabled]="showForm" title="Close">
+      <button class="btn-action-toolbar btn-close" (click)="onClose()" title="Close Form">
         <i class="bi bi-x-circle-fill"></i> Close
       </button>
     </div>

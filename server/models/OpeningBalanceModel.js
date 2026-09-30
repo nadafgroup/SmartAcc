@@ -225,6 +225,37 @@ class OpeningBalanceModel {
     return this.getById(id);
   }
 
+  static async confirm(id) {
+    // Confirm semantics for opening balance = validate + post the record.
+    // A record must exist and not already be posted.
+    const record = await this.getById(id);
+    if (!record) {
+      throw new Error('Opening balance record not found');
+    }
+    if (record.IsPosted) {
+      throw new Error('Record is already confirmed/posted');
+    }
+    return this.post(id);
+  }
+
+  static async unconfirm(id) {
+    // Un-confirm a posted record so it can be edited again.
+    const record = await this.getById(id);
+    if (!record) {
+      throw new Error('Opening balance record not found');
+    }
+    const sqlString = `
+      UPDATE opening_balance
+      SET
+        IsPosted = 0,
+        PostedDate = NULL,
+        ModifiedDate = GETDATE()
+      WHERE OpeningBalanceID = ?
+    `;
+    await this.query(sqlString, [id]);
+    return this.getById(id);
+  }
+
   static async getAvailableAccounts(financialYear) {
     const sqlString = `
       SELECT 

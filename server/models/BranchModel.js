@@ -141,6 +141,38 @@ class BranchModel {
             throw err;
         }
     }
+
+    // Confirm branch
+    static async confirm(id) {
+        try {
+            const pool = getPool();
+            const columnCheck = await pool.request().query(`
+                SELECT COUNT(*) as hasColumn FROM sys.columns 
+                WHERE Name = 'IsConfirmed' AND Object_ID = Object_ID('Branches')
+            `);
+
+            if (columnCheck.recordset[0].hasColumn > 0) {
+                await pool.request()
+                    .input('BranchID', sql.Int, id)
+                    .query(`
+                        UPDATE Branches 
+                        SET IsConfirmed = 1, ModifiedDate = GETDATE() 
+                        WHERE BranchID = @BranchID
+                    `);
+            } else {
+                await pool.request()
+                    .input('BranchID', sql.Int, id)
+                    .query(`
+                        UPDATE Branches 
+                        SET ModifiedDate = GETDATE() 
+                        WHERE BranchID = @BranchID
+                    `);
+            }
+            return await this.getById(id);
+        } catch (err) {
+            throw err;
+        }
+    }
 }
 
 module.exports = BranchModel;
